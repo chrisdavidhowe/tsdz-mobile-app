@@ -1,0 +1,6 @@
+module Pods_EBikeController_EBikeControllerTests {
+  umbrella header "Pods-EBikeController-EBikeControllerTests-umbrella.h"
+
+  export *
+  module * { export * }
+}
