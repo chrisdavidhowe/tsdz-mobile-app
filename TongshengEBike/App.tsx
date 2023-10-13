@@ -106,14 +106,15 @@ function App(): JSX.Element {
 
   return (
     <SafeAreaView style={backgroundStyle}>
-      <Text style={styles.header}>EBike Parameters</Text>
-      <Text style={styles.text}>Pedal Assist</Text>
+      <Text style={styles.header}>EBike</Text>
+      <Text style={styles.text}>PEDAL ASSIST</Text>
       <RadioGroup
         radioButtons={assistButtons}
         onPress={setPedalAssistMode}
         selectedId={pedalAssistMode}
         layout="column"
       />
+      <Text style={styles.text}>PARAMETERS</Text>
       <ScrollView
         contentInsetAdjustmentBehavior="automatic"
         style={backgroundStyle}>
