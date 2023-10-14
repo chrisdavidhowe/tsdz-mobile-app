@@ -38,6 +38,7 @@ class BLEServiceInstance {
       const subscription = this.manager.onStateChange(state => {
         switch (state) {
           case BluetoothState.Unsupported:
+            console.error('Unsupported ', state);
             break;
           case BluetoothState.PoweredOff:
             this.onBluetoothPowerOff();
@@ -66,7 +67,7 @@ class BLEServiceInstance {
     }
     return this.manager
       .cancelDeviceConnection(this.device.id)
-      .then(() => this.showSuccessToast('Device disconnected'))
+      .then(() => console.log('Device disconnected'))
       .catch(error => {
         if (error?.code !== BleErrorCode.DeviceDisconnected) {
           this.onError(error);
@@ -75,6 +76,7 @@ class BLEServiceInstance {
   };
 
   onBluetoothPowerOff = () => {
+    console.log('BLE power off');
   };
 
   scanDevices = async (

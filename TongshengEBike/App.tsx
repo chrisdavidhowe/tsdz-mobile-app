@@ -10,7 +10,7 @@ import {
 import Slider, {SliderProps} from '@react-native-community/slider';
 import RadioGroup from 'react-native-radio-buttons-group';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
-import {BleManager} from 'react-native-ble-plx';
+import {BLEService} from './BLESevice';
 
 export interface SliderParameterProps extends SliderProps {
   parameterName: string;
@@ -46,6 +46,13 @@ function App(): JSX.Element {
   const buttonSize = 40;
   let bleConnected = false;
 
+  BLEService.initializeBLE();
+  BLEService.scanDevices(device => {
+    if (device.name != null) {
+      console.log(`device found! name : ${device.name} id : ${device.id}`);
+    }
+  }, []);
+
   const viewButtons = useMemo(
     () => [
       {
@@ -69,7 +76,7 @@ function App(): JSX.Element {
     ],
     [],
   );
-  const [viewMode, setViewMode] = useState<string | undefined>();
+  const [viewMode, setViewMode] = useState<string | undefined>('dashboard');
   useEffect(() => {
     console.log(`view mode has changed to: ${viewMode}`);
   }, [viewMode]); // The second argument is an array of dependencies
@@ -124,7 +131,9 @@ function App(): JSX.Element {
     ],
     [],
   );
-  const [pedalAssistMode, setPedalAssistMode] = useState<string | undefined>();
+  const [pedalAssistMode, setPedalAssistMode] = useState<string | undefined>(
+    '1',
+  );
   useEffect(() => {
     console.log(`pedal assist has changed to: ${pedalAssistMode}`);
     // You can perform any additional actions here when 'count' changes
@@ -152,8 +161,8 @@ function App(): JSX.Element {
             selectedId={pedalAssistMode}
             layout="column"
           />
-        <Text style={styles.largeHeader}>Battery : {batteryPct}%</Text>
-        <Text style={styles.largeHeader}>Watts : {watts}</Text>
+          <Text style={styles.largeHeader}>Battery : {batteryPct}%</Text>
+          <Text style={styles.largeHeader}>Watts : {watts}</Text>
         </View>
       )}
       {viewMode === 'settings' && (
@@ -182,7 +191,7 @@ function App(): JSX.Element {
         </View>
       )}
       <View style={styles.footer}>
-        <RadioGroup 
+        <RadioGroup
           radioButtons={viewButtons}
           onPress={setViewMode}
           selectedId={viewMode}
