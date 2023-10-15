@@ -1,7 +1,7 @@
 import ByteBuffer from 'bytebuffer';
 import {BLEService} from './BLESevice';
-import { TSDZ_Configurations } from './TSDZ_Config';
-import { TSDZ_Periodic } from './TSDZ_Periodic';
+import {TSDZ_Configurations} from './TSDZ_Config';
+import {TSDZ_Periodic} from './TSDZ_Periodic';
 
 export class TSDZ_BLE {
   TAG = 'TSDZBTService';

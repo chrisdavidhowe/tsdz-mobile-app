@@ -10,8 +10,8 @@ import {
 import Slider, {SliderProps} from '@react-native-community/slider';
 import RadioGroup from 'react-native-radio-buttons-group';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
-import { BLEService } from './BLESevice';
-import { TSDZ_BLE } from './TSDZ_BLE';
+import {BLEService} from './BLESevice';
+import {TSDZ_BLE} from './TSDZ_BLE';
 
 export interface SliderParameterProps extends SliderProps {
   parameterName: string;
@@ -43,16 +43,23 @@ const SliderComponent = (props: SliderParameterProps) => {
   );
 };
 
+const ble = new TSDZ_BLE();
+
+async function periodicLoop(): Promise<void> {
+  ble.readPeriodic();
+  setTimeout(() => {
+    console.log('periodicLoop');
+    return periodicLoop();
+  }, 1000);
+}
+
 function App(): JSX.Element {
-
   const [initialized, setInitialized] = useState(false);
-
   useEffect(() => {
-    const ble = new TSDZ_BLE();
     ble.setupConnection();
     setInitialized(true);
+    periodicLoop();
   }, []); // Empty dependency array ensures it only runs once
-
 
   const buttonSize = 40;
 
@@ -82,6 +89,8 @@ function App(): JSX.Element {
   const [viewMode, setViewMode] = useState<string | undefined>('dashboard');
   useEffect(() => {
     console.log(`view mode has changed to: ${viewMode}`);
+    ble.writeCfg();
+    ble.writePeriodic();
   }, [viewMode]); // The second argument is an array of dependencies
 
   const assistButtons = useMemo(

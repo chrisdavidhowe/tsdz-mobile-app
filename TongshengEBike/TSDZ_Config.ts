@@ -98,6 +98,17 @@ export class TSDZ_Configurations {
   coast_brake_adc: number = 0;
   ant_device_id: number = 0;
 
+  constructor() {
+    const numRows = 8;
+    const numCols = 2;
+    for (let i = 0; i < numRows; i++) {
+      this.torque_sensor_calibration_table_left[i] = new Array(numCols).fill(0);
+      this.torque_sensor_calibration_table_right[i] = new Array(numCols).fill(
+        0,
+      );
+    }
+  }
+
   getData(data: ByteBuffer): boolean {
     if (data.buffer.length !== CONFIGURATIONS_ADV_SIZE) {
       console.error(this.TAG, 'setData: wrong data size');
