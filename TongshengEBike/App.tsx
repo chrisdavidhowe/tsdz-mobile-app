@@ -17,6 +17,7 @@ export interface SliderParameterProps extends SliderProps {
   parameterName: string;
   parameterIndex: number;
 }
+const ble = new TSDZ_BLE();
 
 export type DisplayView = 'settings' | 'dashboard';
 
@@ -24,6 +25,7 @@ const SliderComponent = (props: SliderParameterProps) => {
   const [value, setValue] = useState(props.value ?? 0);
   useEffect(() => {
     console.log(`value has changed to: ${value}`);
+    ble.writeCfg();
     // You can perform any additional actions here when 'count' changes
   }, [value]); // The second argument is an array of dependencies
 
@@ -43,7 +45,6 @@ const SliderComponent = (props: SliderParameterProps) => {
   );
 };
 
-const ble = new TSDZ_BLE();
 
 async function periodicLoop(): Promise<void> {
   ble.readPeriodic();

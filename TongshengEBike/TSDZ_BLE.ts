@@ -47,37 +47,53 @@ export class TSDZ_BLE {
 
   writeCfg(): void {
     this.cfg.formatData();
-    BLEService.writeCharacteristicWithoutResponseForDevice(
-      this.TSDZ_SERVICE,
-      this.TSDZ_CHARACTERISTICS_CONFIG,
-      this.cfg.buffer.toBase64(),
-    );
+    try {
+      BLEService.writeCharacteristicWithoutResponseForDevice(
+        this.TSDZ_SERVICE,
+        this.TSDZ_CHARACTERISTICS_CONFIG,
+        this.cfg.buffer.toBase64(),
+      );
+    } catch (err) {
+      console.error(`writeCfg ${err}`);
+    }
   }
 
   writePeriodic(): void {
     this.periodic.formatData();
+    try {
     BLEService.writeCharacteristicWithoutResponseForDevice(
       this.TSDZ_SERVICE,
       this.TSDZ_CHARACTERISTICS_PERIODIC,
       this.periodic.data.toBase64(),
     );
+    } catch(err) {
+        console.error(`writePeriodic ${err}`);
+    }
   }
 
   async readCfg(): Promise<void> {
+    try {
     const char = await BLEService.readCharacteristicForDevice(
       this.TSDZ_SERVICE,
       this.TSDZ_CHARACTERISTICS_CONFIG,
     );
     const buffer = ByteBuffer.fromBase64(char.value ?? '');
     this.cfg.getData(buffer);
+    } catch (err) {
+        console.error(`readCfg ${err}`);
+    }
   }
 
   async readPeriodic(): Promise<void> {
+    try {
     const char = await BLEService.readCharacteristicForDevice(
       this.TSDZ_SERVICE,
       this.TSDZ_CHARACTERISTICS_PERIODIC,
     );
     const buffer = ByteBuffer.fromBase64(char.value ?? '');
     this.periodic.getData(buffer);
+    } catch(err) {
+        console.error(`readPeriodic ${err}`);
+    }
   }
 }
