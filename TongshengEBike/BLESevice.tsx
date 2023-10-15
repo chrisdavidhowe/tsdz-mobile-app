@@ -162,7 +162,7 @@ class BLEServiceInstance {
   writeCharacteristicWithResponseForDevice = async (
     serviceUUID: UUID,
     characteristicUUID: UUID,
-    time: Base64,
+    value: Base64,
   ) => {
     if (!this.device) {
       throw new Error(deviceNotConnectedErrorText);
@@ -172,7 +172,7 @@ class BLEServiceInstance {
         this.device.id,
         serviceUUID,
         characteristicUUID,
-        time,
+        value,
       )
       .catch(error => {
         this.onError(error);
@@ -182,7 +182,7 @@ class BLEServiceInstance {
   writeCharacteristicWithoutResponseForDevice = async (
     serviceUUID: UUID,
     characteristicUUID: UUID,
-    time: Base64,
+    value: Base64,
   ) => {
     if (!this.device) {
       throw new Error(deviceNotConnectedErrorText);
@@ -192,7 +192,7 @@ class BLEServiceInstance {
         this.device.id,
         serviceUUID,
         characteristicUUID,
-        time,
+        value,
       )
       .catch(error => {
         this.onError(error);

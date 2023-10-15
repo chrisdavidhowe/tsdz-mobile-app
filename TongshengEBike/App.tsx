@@ -11,6 +11,8 @@ import Slider, {SliderProps} from '@react-native-community/slider';
 import RadioGroup from 'react-native-radio-buttons-group';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {BLEService} from './BLESevice';
+import { TSDZ_Configurations } from './TSDZ_Config';
+import { TSDZ_Periodic } from './TSDZ_Periodic';
 
 export interface SliderParameterProps extends SliderProps {
   parameterName: string;
@@ -44,14 +46,6 @@ const SliderComponent = (props: SliderParameterProps) => {
 
 function App(): JSX.Element {
   const buttonSize = 40;
-  let bleConnected = false;
-
-  BLEService.initializeBLE();
-  BLEService.scanDevices(device => {
-    if (device.name != null) {
-      console.log(`device found! name : ${device.name} id : ${device.id}`);
-    }
-  }, []);
 
   const viewButtons = useMemo(
     () => [
