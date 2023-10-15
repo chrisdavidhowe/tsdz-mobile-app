@@ -1,3 +1,4 @@
+import ByteBuffer from 'bytebuffer';
 import {BLEService} from './BLESevice';
 import { TSDZ_Configurations } from './TSDZ_Config';
 import { TSDZ_Periodic } from './TSDZ_Periodic';
@@ -35,6 +36,7 @@ export class TSDZ_BLE {
   }
 
   async setupConnection(): Promise<boolean> {
+    console.log(`ble setup connection`);
     await BLEService.scanDevices(device => {
       if (device.name != null) {
         console.log(`device found! name : ${device.name} id : ${device.id}`);
@@ -44,6 +46,7 @@ export class TSDZ_BLE {
   }
 
   writeCfg(): void {
+    this.cfg.formatData();
     BLEService.writeCharacteristicWithoutResponseForDevice(
       this.TSDZ_SERVICE,
       this.TSDZ_CHARACTERISTICS_CONFIG,
@@ -52,10 +55,29 @@ export class TSDZ_BLE {
   }
 
   writePeriodic(): void {
+    this.periodic.formatData();
     BLEService.writeCharacteristicWithoutResponseForDevice(
       this.TSDZ_SERVICE,
       this.TSDZ_CHARACTERISTICS_PERIODIC,
       this.periodic.data.toBase64(),
     );
+  }
+
+  async readCfg(): Promise<void> {
+    const char = await BLEService.readCharacteristicForDevice(
+      this.TSDZ_SERVICE,
+      this.TSDZ_CHARACTERISTICS_CONFIG,
+    );
+    const buffer = ByteBuffer.fromBase64(char.value ?? '');
+    this.cfg.getData(buffer);
+  }
+
+  async readPeriodic(): Promise<void> {
+    const char = await BLEService.readCharacteristicForDevice(
+      this.TSDZ_SERVICE,
+      this.TSDZ_CHARACTERISTICS_PERIODIC,
+    );
+    const buffer = ByteBuffer.fromBase64(char.value ?? '');
+    this.periodic.getData(buffer);
   }
 }

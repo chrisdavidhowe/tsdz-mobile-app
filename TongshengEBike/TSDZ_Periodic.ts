@@ -109,7 +109,7 @@ export class TSDZ_Periodic {
     return true;
   }
 
-  setData(): ByteBuffer {
+  formatData(): ByteBuffer {
     this.data.buffer[0] = this.assistLevelTarget;
     this.data.buffer[1] = this.motorStateTarget;
     return this.data;

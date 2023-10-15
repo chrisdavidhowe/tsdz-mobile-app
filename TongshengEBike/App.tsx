@@ -10,9 +10,8 @@ import {
 import Slider, {SliderProps} from '@react-native-community/slider';
 import RadioGroup from 'react-native-radio-buttons-group';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
-import {BLEService} from './BLESevice';
-import { TSDZ_Configurations } from './TSDZ_Config';
-import { TSDZ_Periodic } from './TSDZ_Periodic';
+import { BLEService } from './BLESevice';
+import { TSDZ_BLE } from './TSDZ_BLE';
 
 export interface SliderParameterProps extends SliderProps {
   parameterName: string;
@@ -45,6 +44,16 @@ const SliderComponent = (props: SliderParameterProps) => {
 };
 
 function App(): JSX.Element {
+
+  const [initialized, setInitialized] = useState(false);
+
+  useEffect(() => {
+    const ble = new TSDZ_BLE();
+    ble.setupConnection();
+    setInitialized(true);
+  }, []); // Empty dependency array ensures it only runs once
+
+
   const buttonSize = 40;
 
   const viewButtons = useMemo(
