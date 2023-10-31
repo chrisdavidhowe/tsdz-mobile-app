@@ -15,7 +15,6 @@ import {TSDZ_BLE} from './TSDZ_BLE';
 
 export interface SliderParameterProps extends SliderProps {
   parameterName: string;
-  parameterIndex: number;
 }
 const ble = new TSDZ_BLE();
 
@@ -26,8 +25,7 @@ const SliderComponent = (props: SliderParameterProps) => {
   useEffect(() => {
     console.log(`value has changed to: ${value}`);
     ble.writeCfg();
-    // You can perform any additional actions here when 'count' changes
-  }, [value]); // The second argument is an array of dependencies
+  }, [value]);
 
   return (
     <View style={styles.sliderComponent}>
@@ -45,12 +43,11 @@ const SliderComponent = (props: SliderParameterProps) => {
   );
 };
 
-
 async function periodicLoop(): Promise<void> {
   ble.readPeriodic();
   setTimeout(() => {
     console.log('periodicLoop');
-    return periodicLoop();
+    //return periodicLoop();
   }, 1000);
 }
 
@@ -160,6 +157,7 @@ function App(): JSX.Element {
   };
 
   let batteryPct = 55;
+  let batteryVolts = 48;
   let watts = 10;
 
   return (
@@ -168,13 +166,21 @@ function App(): JSX.Element {
       {viewMode === 'dashboard' && (
         <View>
           <Text style={styles.text}>PEDAL ASSIST</Text>
-          <RadioGroup
+          {/* <RadioGroup
             radioButtons={assistButtons}
             onPress={setPedalAssistMode}
             selectedId={pedalAssistMode}
             layout="column"
+          /> */}
+          <SliderComponent
+            parameterName="Assist Level"
+            step={0.01}
+            value={ble.cfg.assist_level_prct}
+            minimumValue={0}
+            maximumValue={0.9}
           />
           <Text style={styles.largeHeader}>Battery : {batteryPct}%</Text>
+          <Text style={styles.largeHeader}>Voltage : {batteryVolts}V+</Text>
           <Text style={styles.largeHeader}>Watts : {watts}</Text>
         </View>
       )}
@@ -185,20 +191,18 @@ function App(): JSX.Element {
             contentInsetAdjustmentBehavior="automatic"
             style={backgroundStyle}>
             <SliderComponent
-              parameterName="EBIKE thing 1"
-              parameterIndex={0}
+              parameterName="Wheel Perimeter"
               step={1}
-              value={-30}
-              minimumValue={-80}
-              maximumValue={0}
+              value={ble.cfg.wheel_perimeter}
+              minimumValue={750}
+              maximumValue={3000}
             />
             <SliderComponent
-              parameterName="EBIKE thing 2"
-              parameterIndex={0}
-              step={0.1}
-              value={10}
-              minimumValue={0}
-              maximumValue={10}
+              parameterName="Max Speed"
+              step={1}
+              value={ble.cfg.wheel_max_speed}
+              minimumValue={1}
+              maximumValue={99}
             />
           </ScrollView>
         </View>
