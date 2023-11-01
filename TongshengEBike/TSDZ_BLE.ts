@@ -10,6 +10,7 @@ export class TSDZ_BLE {
   TSDZ_CHARACTERISTICS_CONFIG = 'dac21402-cfdd-462f-bfaf-7f6e4ccbb45f';
   CLIENT_CHARACTERISTIC_CONFIG = 'dac21402-cfdd-462f-bfaf-7f6e4ccbb45f';
   CCCD = '00002902-0000-1000-8000-00805f9b34fb';
+  TSDZ_WIRELESS_DEVICE = '882A6E01-BFA2-6F7A-710D-FA37E11EC3EF';
   ADDRESS_EXTRA = 'ADDRESS';
   VALUE_EXTRA = 'VALUE';
   ACTION_START_FOREGROUND_SERVICE = 'ACTION_START_FOREGROUND_SERVICE';
@@ -31,17 +32,28 @@ export class TSDZ_BLE {
 
   constructor() {
     BLEService.initializeBLE();
+    this.connectDevice();
     this.cfg = new TSDZ_Configurations();
     this.periodic = new TSDZ_Periodic();
   }
 
   async setupConnection(): Promise<boolean> {
-    console.log(`ble setup connection`);
+    console.log('ble setup connection');
     await BLEService.scanDevices(device => {
       if (device.name != null) {
         console.log(`device found! name : ${device.name} id : ${device.id}`);
       }
     }, []);
+    return true;
+  }
+
+  async connectDevice(): Promise<boolean> {
+    try {
+      await BLEService.connectToDevice(this.TSDZ_WIRELESS_DEVICE);
+    } catch (err) {
+      console.error(`connectDevice failed ${err}`);
+      return false;
+    }
     return true;
   }
 
@@ -94,6 +106,7 @@ export class TSDZ_BLE {
       this.periodic.getData(buffer);
     } catch (err) {
       console.error(`readPeriodic ${err}`);
+      await this.connectDevice();
     }
   }
 }

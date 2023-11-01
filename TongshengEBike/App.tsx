@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import React, {useEffect, useMemo, useState} from 'react';
 import {
   SafeAreaView,
@@ -47,7 +48,7 @@ async function periodicLoop(): Promise<void> {
   ble.readPeriodic();
   setTimeout(() => {
     console.log('periodicLoop');
-    //return periodicLoop();
+    return periodicLoop();
   }, 1000);
 }
 
@@ -91,97 +92,29 @@ function App(): JSX.Element {
     ble.writePeriodic();
   }, [viewMode]); // The second argument is an array of dependencies
 
-  const assistButtons = useMemo(
-    () => [
-      {
-        id: '1',
-        label: 'OFF',
-        color: 'black',
-        labelStyle: {fontSize: 35, color: 'black'},
-        containerStyle: {width: '95%', backgroundColor: 'white', padding: 20},
-        value: 'off',
-        size: buttonSize,
-      },
-      {
-        id: '2',
-        label: 'LOW',
-        value: 'low',
-        color: 'black',
-        labelStyle: {fontSize: 35, color: 'black'},
-        containerStyle: {width: '95%', backgroundColor: '#53af55', padding: 20},
-        size: buttonSize,
-      },
-      {
-        id: '3',
-        label: 'MEDIUM',
-        value: 'med',
-        color: 'black',
-        labelStyle: {fontSize: 35, color: 'black'},
-        containerStyle: {width: '95%', backgroundColor: '#fff271', padding: 20},
-        size: buttonSize,
-      },
-      {
-        id: '4',
-        label: 'HIGH',
-        value: 'high',
-        color: 'black',
-        labelStyle: {fontSize: 35, color: 'black'},
-        containerStyle: {width: '95%', backgroundColor: '#f2963b', padding: 20},
-        size: buttonSize,
-      },
-      {
-        id: '5',
-        label: 'MAX',
-        value: 'max',
-        color: 'black',
-        labelStyle: {fontSize: 35, color: 'black'},
-        containerStyle: {width: '95%', backgroundColor: '#eb6d6d', padding: 20},
-        size: buttonSize,
-      },
-    ],
-    [],
-  );
-  const [pedalAssistMode, setPedalAssistMode] = useState<string | undefined>(
-    '1',
-  );
-  useEffect(() => {
-    console.log(`pedal assist has changed to: ${pedalAssistMode}`);
-    // You can perform any additional actions here when 'count' changes
-  }, [pedalAssistMode]); // The second argument is an array of dependencies
 
   const isDarkMode = useColorScheme() === 'dark';
 
   const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+    backgroundColor: "black",
     height: '100%',
   };
 
-  let batteryPct = 55;
-  let batteryVolts = 48;
-  let watts = 10;
-
   return (
     <SafeAreaView style={backgroundStyle}>
-      <Text style={styles.header}>EBike</Text>
       {viewMode === 'dashboard' && (
         <View>
-          <Text style={styles.text}>PEDAL ASSIST</Text>
-          {/* <RadioGroup
-            radioButtons={assistButtons}
-            onPress={setPedalAssistMode}
-            selectedId={pedalAssistMode}
-            layout="column"
-          /> */}
-          <SliderComponent
-            parameterName="Assist Level"
-            step={0.01}
-            value={ble.cfg.assist_level_prct}
-            minimumValue={0}
-            maximumValue={0.9}
-          />
-          <Text style={styles.largeHeader}>Battery : {batteryPct}%</Text>
-          <Text style={styles.largeHeader}>Voltage : {batteryVolts}V+</Text>
-          <Text style={styles.largeHeader}>Watts : {watts}</Text>
+          <Text style={styles.largeHeader}>Assist Level : {ble.periodic.assistLevel}</Text>
+          <Text style={styles.largeHeader}>Assist Level Target : {ble.periodic.assistLevelTarget}</Text>
+          <Text style={styles.largeHeader}>Battery Voltage : {ble.periodic.batteryVoltage} V</Text>
+          <Text style={styles.largeHeader}>Battery Current : {ble.periodic.batteryCurrent} A</Text>
+          <Text style={styles.largeHeader}>Battery Resistance : {ble.periodic.batteryResistanceEstimated} mΩ</Text>
+          <Text style={styles.largeHeader}>Battery Charge : {ble.periodic.batterySOC} %</Text>
+          <Text style={styles.largeHeader}>Human Watts : {ble.periodic.humanPedalPower} W</Text>
+          <Text style={styles.largeHeader}>Motor Watts : {ble.periodic.motorPower} W</Text>
+          <Text style={styles.largeHeader}>Pedal Cadance : {ble.periodic.pedalCadence}</Text>
+          <Text style={styles.largeHeader}>Odometer : {ble.periodic.odometer} km</Text>
+
         </View>
       )}
       {viewMode === 'settings' && (
@@ -266,12 +199,12 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   largeHeader: {
-    fontSize: 35,
+    fontSize: 30,
     textAlign: 'center',
     fontWeight: '700',
     margin: 0,
-    color: '#666e80',
-    padding: 15,
+    color: 'white',
+    padding: 10,
   },
   footer: {
     position: 'absolute',

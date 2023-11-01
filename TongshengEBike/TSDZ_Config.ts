@@ -52,16 +52,18 @@ export class TSDZ_Configurations {
   motor_type: number = 0;
   motor_current_control_mode: number = 0;
   motor_assistance_startup_without_pedal_rotation: number = 0;
-  assist_level_factor: number[] = new Array(ASSIST_LEVEL_NUMBER);
-  assist_level_factor_div100: number[] = new Array(ASSIST_LEVEL_NUMBER);
+  assist_level_factor: number[] = new Array(ASSIST_LEVEL_NUMBER).fill(0);
+  assist_level_factor_div100: number[] = new Array(ASSIST_LEVEL_NUMBER).fill(0);
   number_oassist_levels: number = 0;
   startup_motor_power_boost_feature_enabled: number = 0;
   startup_motor_power_boost_always: number = 0;
   startup_motor_power_boost_limit_power: number = 0;
-  startup_motor_power_boost_factor: number[] = new Array(ASSIST_LEVEL_NUMBER);
+  startup_motor_power_boost_factor: number[] = new Array(
+    ASSIST_LEVEL_NUMBER,
+  ).fill(0);
   startup_motor_power_boost_factor_div100: number[] = new Array(
     ASSIST_LEVEL_NUMBER,
-  );
+  ).fill(0);
   startup_motor_power_boost_time: number = 0;
   startup_motor_power_boost_fade_time: number = 0;
   temperature_limit_feature_enabled: number = 0;
@@ -74,13 +76,17 @@ export class TSDZ_Configurations {
   ui32_odometer_x10: number = 0;
   odometer: number = 0;
   walk_assist_feature_enabled: number = 0;
-  walk_assist_level_factor: number[] = new Array(ASSIST_LEVEL_NUMBER);
+  walk_assist_level_factor: number[] = new Array(ASSIST_LEVEL_NUMBER).fill(0);
   torque_sensor_calibration_feature_enabled: number = 0;
   torque_sensor_calibration_pedal_ground: number = 0;
   torque_sensor_filter: number = 0;
   torque_sensor_adc_threshold: number = 0;
-  torque_sensor_calibration_table_left: number[][] = [];
-  torque_sensor_calibration_table_right: number[][] = [];
+  torque_sensor_calibration_table_left: number[][] = new Array(8).fill(
+    new Array(2).fill(0),
+  );
+  torque_sensor_calibration_table_right: number[][] = new Array(8).fill(
+    new Array(2).fill(0),
+  );
   street_mode_function_enabled: number = 0;
   street_mode_enabled: number = 0;
   street_mode_enabled_on_startup: number = 0;
@@ -95,14 +101,7 @@ export class TSDZ_Configurations {
   coast_brake_adc: number = 0;
   ant_device_id: number = 0;
 
-  constructor() {
-    const numRows = 8;
-    const numCols = 2;
-    for (let i = 0; i < numRows; i++) {
-      this.torque_sensor_calibration_table_left = new Array(numCols).fill(0);
-      this.torque_sensor_calibration_table_right = new Array(numCols).fill(0);
-    }
-  }
+  constructor() {}
 
   getData(data: ByteBuffer): boolean {
     if (data.buffer.length !== CONFIGURATIONS_ADV_SIZE) {
@@ -559,7 +558,6 @@ export class TSDZ_Configurations {
     data.writeByte(this.ant_device_id, 158);
 
     console.log(data.toHex());
-    console.log(`wheel permiter ${this.wheel_perimeter}`);
     return data;
   }
 }
