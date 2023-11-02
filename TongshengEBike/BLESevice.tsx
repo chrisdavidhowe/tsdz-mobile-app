@@ -100,7 +100,7 @@ class BLEServiceInstance {
     new Promise<Device>((resolve, reject) => {
       this.manager.stopDeviceScan();
       this.manager
-        .connectToDevice(deviceId)
+        .connectToDevice(deviceId, {timeout: 20_000})
         .then(device => {
           this.device = device;
           resolve(device);

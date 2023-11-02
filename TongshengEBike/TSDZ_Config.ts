@@ -1,5 +1,3 @@
-import ByteBuffer from 'bytebuffer';
-
 /* eslint-disable no-bitwise */
 const ASSIST_LEVEL_NUMBER: number = 7;
 const NO_ERROR = 0;
@@ -27,7 +25,7 @@ function Div1000toNum(input: number): number {
 }
 
 export class TSDZ_Configurations {
-  buffer = new ByteBuffer(CONFIGURATIONS_ADV_SIZE);
+  data = new Array<number>(CONFIGURATIONS_ADV_SIZE);
   TAG: string = 'TSDZ_Configurations';
 
   assist_level: number = 0;
@@ -103,238 +101,230 @@ export class TSDZ_Configurations {
 
   constructor() {}
 
-  getData(data: ByteBuffer): boolean {
-    if (data.buffer.length !== CONFIGURATIONS_ADV_SIZE) {
+  getData(data: number[]): boolean {
+    if (data.length !== CONFIGURATIONS_ADV_SIZE) {
       console.error(this.TAG, 'setData: wrong data size');
       return false;
     }
-
-    if (data.buffer[0] === CONFIGURATIONS_VERSION) {
-      this.assist_level = data.buffer[1];
-      this.wheel_perimeter =
-        ((data.buffer[3] & 255) << 8) + (data.buffer[2] & 255);
-      this.wheel_max_speed = data.buffer[4];
-      this.units_type = data.buffer[5];
+    this.data = data;
+    if (data[0] === CONFIGURATIONS_VERSION) {
+      this.assist_level = data[1];
+      this.wheel_perimeter = ((data[3] & 255) << 8) + (data[2] & 255);
+      this.wheel_max_speed = data[4];
+      this.units_type = data[5];
       this.ui32_wh_x10 =
-        (data.buffer[6] & 255) +
-        ((data.buffer[7] & 255) << 8) +
-        ((data.buffer[8] & 255) << 16) +
-        ((data.buffer[9] & 255) << 24);
+        (data[6] & 255) +
+        ((data[7] & 255) << 8) +
+        ((data[8] & 255) << 16) +
+        ((data[9] & 255) << 24);
       this.wh = X10toNum(this.ui32_wh_x10);
       this.ui32_wh_x10_100_percent =
-        (data.buffer[10] & 255) +
-        ((data.buffer[11] & 255) << 8) +
-        ((data.buffer[12] & 255) << 16) +
-        ((data.buffer[13] & 255) << 24);
+        (data[10] & 255) +
+        ((data[11] & 255) << 8) +
+        ((data[12] & 255) << 16) +
+        ((data[13] & 255) << 24);
       this.wh_100_percent = X10toNum(this.ui32_wh_x10_100_percent);
-      this.battery_soc_enable = data.buffer[14];
-      this.target_max_battery_power_div25 = data.buffer[15];
-      this.battery_max_current = data.buffer[16];
-      this.motor_max_current = data.buffer[17];
-      this.motor_current_min_adc = data.buffer[18];
-      this.field_weakening = data.buffer[19];
-      this.ramp_up_amps_per_second_x10 = data.buffer[20];
+      this.battery_soc_enable = data[14];
+      this.target_max_battery_power_div25 = data[15];
+      this.battery_max_current = data[16];
+      this.motor_max_current = data[17];
+      this.motor_current_min_adc = data[18];
+      this.field_weakening = data[19];
+      this.ramp_up_amps_per_second_x10 = data[20];
       this.ramp_up_amps_per_second = X10toNum(
         this.ramp_up_amps_per_second_x10 & 255,
       );
       this.battery_low_voltage_cut_ofx10 =
-        ((data.buffer[22] & 255) << 8) + (data.buffer[21] & 255);
+        ((data[22] & 255) << 8) + (data[21] & 255);
       this.battery_low_voltage_cut_off = X10toNum(
         this.battery_low_voltage_cut_ofx10,
       );
-      this.motor_type = data.buffer[23];
-      this.motor_current_control_mode = data.buffer[24];
-      this.motor_assistance_startup_without_pedal_rotation = data.buffer[25];
-      this.assist_level_factor[0] =
-        ((data.buffer[27] & 255) << 8) + (data.buffer[26] & 255);
+      this.motor_type = data[23];
+      this.motor_current_control_mode = data[24];
+      this.motor_assistance_startup_without_pedal_rotation = data[25];
+      this.assist_level_factor[0] = ((data[27] & 255) << 8) + (data[26] & 255);
       this.assist_level_factor_div100[0] = Div1000toNum(
         this.assist_level_factor[0],
       );
-      this.assist_level_factor[1] =
-        ((data.buffer[29] & 255) << 8) + (data.buffer[28] & 255);
+      this.assist_level_factor[1] = ((data[29] & 255) << 8) + (data[28] & 255);
       this.assist_level_factor_div100[1] = Div1000toNum(
         this.assist_level_factor[1],
       );
-      this.assist_level_factor[2] =
-        ((data.buffer[31] & 255) << 8) + (data.buffer[30] & 255);
+      this.assist_level_factor[2] = ((data[31] & 255) << 8) + (data[30] & 255);
       this.assist_level_factor_div100[2] = Div1000toNum(
         this.assist_level_factor[2],
       );
-      this.assist_level_factor[3] =
-        ((data.buffer[33] & 255) << 8) + (data.buffer[32] & 255);
+      this.assist_level_factor[3] = ((data[33] & 255) << 8) + (data[32] & 255);
       this.assist_level_factor_div100[3] = Div1000toNum(
         this.assist_level_factor[3],
       );
-      this.assist_level_factor[4] =
-        ((data.buffer[33] & 255) << 8) + (data.buffer[34] & 255);
+      this.assist_level_factor[4] = ((data[33] & 255) << 8) + (data[34] & 255);
       this.assist_level_factor_div100[4] = Div1000toNum(
         this.assist_level_factor[4],
       );
-      this.assist_level_factor[5] =
-        ((data.buffer[37] & 255) << 8) + (data.buffer[36] & 255);
+      this.assist_level_factor[5] = ((data[37] & 255) << 8) + (data[36] & 255);
       this.assist_level_factor_div100[5] = Div1000toNum(
         this.assist_level_factor[5],
       );
-      this.assist_level_factor[6] =
-        ((data.buffer[39] & 255) << 8) + (data.buffer[38] & 255);
+      this.assist_level_factor[6] = ((data[39] & 255) << 8) + (data[38] & 255);
       this.assist_level_factor_div100[6] = Div1000toNum(
         this.assist_level_factor[6],
       );
       this.assist_level_prct = this.assist_level_factor[this.assist_level];
-      this.number_oassist_levels = data.buffer[40];
-      this.startup_motor_power_boost_feature_enabled = data.buffer[41];
-      this.startup_motor_power_boost_always = data.buffer[42];
-      this.startup_motor_power_boost_limit_power = data.buffer[43];
+      this.number_oassist_levels = data[40];
+      this.startup_motor_power_boost_feature_enabled = data[41];
+      this.startup_motor_power_boost_always = data[42];
+      this.startup_motor_power_boost_limit_power = data[43];
       this.startup_motor_power_boost_factor[0] =
-        ((data.buffer[45] & 255) << 8) + (data.buffer[44] & 255);
+        ((data[45] & 255) << 8) + (data[44] & 255);
       this.startup_motor_power_boost_factor_div100[0] = Div1000toNum(
         this.startup_motor_power_boost_factor[0],
       );
       this.startup_motor_power_boost_factor[1] =
-        ((data.buffer[47] & 255) << 8) + (data.buffer[46] & 255);
+        ((data[47] & 255) << 8) + (data[46] & 255);
       this.startup_motor_power_boost_factor_div100[1] = Div1000toNum(
         this.startup_motor_power_boost_factor[1],
       );
       this.startup_motor_power_boost_factor[2] =
-        ((data.buffer[49] & 255) << 8) + (data.buffer[48] & 255);
+        ((data[49] & 255) << 8) + (data[48] & 255);
       this.startup_motor_power_boost_factor_div100[2] = Div1000toNum(
         this.startup_motor_power_boost_factor[2],
       );
       this.startup_motor_power_boost_factor[3] =
-        ((data.buffer[51] & 255) << 8) + (data.buffer[50] & 255);
+        ((data[51] & 255) << 8) + (data[50] & 255);
       this.startup_motor_power_boost_factor_div100[3] = Div1000toNum(
         this.startup_motor_power_boost_factor[3],
       );
       this.startup_motor_power_boost_factor[4] =
-        ((data.buffer[53] & 255) << 8) + (data.buffer[52] & 255);
+        ((data[53] & 255) << 8) + (data[52] & 255);
       this.startup_motor_power_boost_factor_div100[4] = Div1000toNum(
         this.startup_motor_power_boost_factor[4],
       );
       this.startup_motor_power_boost_factor[5] =
-        ((data.buffer[55] & 255) << 8) + (data.buffer[54] & 255);
+        ((data[55] & 255) << 8) + (data[54] & 255);
       this.startup_motor_power_boost_factor_div100[5] = Div1000toNum(
         this.startup_motor_power_boost_factor[5],
       );
       this.startup_motor_power_boost_factor[6] =
-        ((data.buffer[160] & 255) << 8) + (data.buffer[159] & 255);
+        ((data[160] & 255) << 8) + (data[159] & 255);
       this.startup_motor_power_boost_factor_div100[6] = Div1000toNum(
         this.startup_motor_power_boost_factor[6],
       );
-      this.startup_motor_power_boost_time = data.buffer[56];
+      this.startup_motor_power_boost_time = data[56];
       this.startup_motor_power_boost_time = X10toNum(
         this.startup_motor_power_boost_time & 0xff,
       );
-      this.startup_motor_power_boost_fade_time = data.buffer[57];
+      this.startup_motor_power_boost_fade_time = data[57];
       this.startup_motor_power_boost_fade_time = X10toNum(
         this.startup_motor_power_boost_fade_time & 0xff,
       );
-      this.temperature_limit_feature_enabled = data.buffer[58];
-      this.motor_temperature_min_value_to_limit = data.buffer[59];
-      this.motor_temperature_max_value_to_limit = data.buffer[60];
-      this.coast_brake_enable = data.buffer[61];
-      this.coast_brake_adc = data.buffer[62];
+      this.temperature_limit_feature_enabled = data[58];
+      this.motor_temperature_min_value_to_limit = data[59];
+      this.motor_temperature_max_value_to_limit = data[60];
+      this.coast_brake_enable = data[61];
+      this.coast_brake_adc = data[62];
       this.battery_voltage_reset_wh_counter_x10 =
-        ((data.buffer[64] & 255) << 8) + (data.buffer[63] & 255);
+        ((data[64] & 255) << 8) + (data[63] & 255);
       this.battery_voltage_reset_wh_counter = X10toNum(
         this.battery_voltage_reset_wh_counter_x10,
       );
-      this.system_power_oftime_minutes = data.buffer[65];
+      this.system_power_oftime_minutes = data[65];
       this.battery_pack_resistance_x1000 =
-        ((data.buffer[67] & 255) << 8) + (data.buffer[66] & 255);
+        ((data[67] & 255) << 8) + (data[66] & 255);
       this.ui32_odometer_x10 =
-        ((data.buffer[71] & 255) << 24) +
-        ((data.buffer[70] & 255) << 16) +
-        ((data.buffer[69] & 255) << 8) +
-        (data.buffer[68] & 255);
+        ((data[71] & 255) << 24) +
+        ((data[70] & 255) << 16) +
+        ((data[69] & 255) << 8) +
+        (data[68] & 255);
       this.odometer = X10toNum(this.ui32_odometer_x10);
-      this.walk_assist_feature_enabled = data.buffer[72];
-      this.walk_assist_level_factor[0] = data.buffer[73];
-      this.walk_assist_level_factor[1] = data.buffer[74];
-      this.walk_assist_level_factor[2] = data.buffer[75];
-      this.walk_assist_level_factor[3] = data.buffer[76];
-      this.walk_assist_level_factor[4] = data.buffer[77];
-      this.walk_assist_level_factor[5] = data.buffer[78];
-      this.walk_assist_level_factor[6] = data.buffer[79];
-      this.torque_sensor_calibration_feature_enabled = data.buffer[80];
-      this.torque_sensor_calibration_pedal_ground = data.buffer[81];
-      this.torque_sensor_filter = data.buffer[82];
-      this.torque_sensor_adc_threshold = data.buffer[83];
+      this.walk_assist_feature_enabled = data[72];
+      this.walk_assist_level_factor[0] = data[73];
+      this.walk_assist_level_factor[1] = data[74];
+      this.walk_assist_level_factor[2] = data[75];
+      this.walk_assist_level_factor[3] = data[76];
+      this.walk_assist_level_factor[4] = data[77];
+      this.walk_assist_level_factor[5] = data[78];
+      this.walk_assist_level_factor[6] = data[79];
+      this.torque_sensor_calibration_feature_enabled = data[80];
+      this.torque_sensor_calibration_pedal_ground = data[81];
+      this.torque_sensor_filter = data[82];
+      this.torque_sensor_adc_threshold = data[83];
       this.torque_sensor_calibration_table_left[0][0] =
-        ((data.buffer[85] & 255) << 8) + (data.buffer[84] & 255);
+        ((data[85] & 255) << 8) + (data[84] & 255);
       this.torque_sensor_calibration_table_left[0][1] =
-        ((data.buffer[87] & 255) << 8) + (data.buffer[86] & 255);
+        ((data[87] & 255) << 8) + (data[86] & 255);
       this.torque_sensor_calibration_table_left[1][0] =
-        ((data.buffer[89] & 255) << 8) + (data.buffer[88] & 255);
+        ((data[89] & 255) << 8) + (data[88] & 255);
       this.torque_sensor_calibration_table_left[1][1] =
-        ((data.buffer[91] & 255) << 8) + (data.buffer[90] & 255);
+        ((data[91] & 255) << 8) + (data[90] & 255);
       this.torque_sensor_calibration_table_left[2][0] =
-        ((data.buffer[93] & 255) << 8) + (data.buffer[92] & 255);
+        ((data[93] & 255) << 8) + (data[92] & 255);
       this.torque_sensor_calibration_table_left[2][1] =
-        ((data.buffer[95] & 255) << 8) + (data.buffer[94] & 255);
+        ((data[95] & 255) << 8) + (data[94] & 255);
       this.torque_sensor_calibration_table_left[3][0] =
-        ((data.buffer[97] & 255) << 8) + (data.buffer[96] & 255);
+        ((data[97] & 255) << 8) + (data[96] & 255);
       this.torque_sensor_calibration_table_left[3][1] =
-        ((data.buffer[99] & 255) << 8) + (data.buffer[98] & 255);
+        ((data[99] & 255) << 8) + (data[98] & 255);
       this.torque_sensor_calibration_table_left[4][0] =
-        ((data.buffer[101] & 255) << 8) + (data.buffer[100] & 255);
+        ((data[101] & 255) << 8) + (data[100] & 255);
       this.torque_sensor_calibration_table_left[4][1] =
-        ((data.buffer[103] & 255) << 8) + (data.buffer[102] & 255);
+        ((data[103] & 255) << 8) + (data[102] & 255);
       this.torque_sensor_calibration_table_left[5][0] =
-        ((data.buffer[105] & 255) << 8) + (data.buffer[104] & 255);
+        ((data[105] & 255) << 8) + (data[104] & 255);
       this.torque_sensor_calibration_table_left[5][1] =
-        ((data.buffer[107] & 255) << 8) + (data.buffer[106] & 255);
+        ((data[107] & 255) << 8) + (data[106] & 255);
       this.torque_sensor_calibration_table_left[6][0] =
-        ((data.buffer[109] & 255) << 8) + (data.buffer[108] & 255);
+        ((data[109] & 255) << 8) + (data[108] & 255);
       this.torque_sensor_calibration_table_left[6][1] =
-        ((data.buffer[111] & 255) << 8) + (data.buffer[110] & 255);
+        ((data[111] & 255) << 8) + (data[110] & 255);
       this.torque_sensor_calibration_table_left[7][0] =
-        ((data.buffer[113] & 255) << 8) + (data.buffer[112] & 255);
+        ((data[113] & 255) << 8) + (data[112] & 255);
       this.torque_sensor_calibration_table_left[7][1] =
-        ((data.buffer[115] & 255) << 8) + (data.buffer[114] & 255);
+        ((data[115] & 255) << 8) + (data[114] & 255);
       this.torque_sensor_calibration_table_right[0][0] =
-        ((data.buffer[117] & 255) << 8) + (data.buffer[116] & 255);
+        ((data[117] & 255) << 8) + (data[116] & 255);
       this.torque_sensor_calibration_table_right[0][1] =
-        ((data.buffer[119] & 255) << 8) + (data.buffer[118] & 255);
+        ((data[119] & 255) << 8) + (data[118] & 255);
       this.torque_sensor_calibration_table_right[1][0] =
-        ((data.buffer[121] & 255) << 8) + (data.buffer[120] & 255);
+        ((data[121] & 255) << 8) + (data[120] & 255);
       this.torque_sensor_calibration_table_right[1][1] =
-        ((data.buffer[123] & 255) << 8) + (data.buffer[122] & 255);
+        ((data[123] & 255) << 8) + (data[122] & 255);
       this.torque_sensor_calibration_table_right[2][0] =
-        ((data.buffer[125] & 255) << 8) + (data.buffer[124] & 255);
+        ((data[125] & 255) << 8) + (data[124] & 255);
       this.torque_sensor_calibration_table_right[2][1] =
-        ((data.buffer[127] & 255) << 8) + (data.buffer[126] & 255);
+        ((data[127] & 255) << 8) + (data[126] & 255);
       this.torque_sensor_calibration_table_right[3][0] =
-        ((data.buffer[129] & 255) << 8) + (data.buffer[128] & 255);
+        ((data[129] & 255) << 8) + (data[128] & 255);
       this.torque_sensor_calibration_table_right[3][1] =
-        ((data.buffer[131] & 255) << 8) + (data.buffer[130] & 255);
+        ((data[131] & 255) << 8) + (data[130] & 255);
       this.torque_sensor_calibration_table_right[4][0] =
-        ((data.buffer[133] & 255) << 8) + (data.buffer[132] & 255);
+        ((data[133] & 255) << 8) + (data[132] & 255);
       this.torque_sensor_calibration_table_right[4][1] =
-        ((data.buffer[135] & 255) << 8) + (data.buffer[134] & 255);
+        ((data[135] & 255) << 8) + (data[134] & 255);
       this.torque_sensor_calibration_table_right[5][0] =
-        ((data.buffer[137] & 255) << 8) + (data.buffer[136] & 255);
+        ((data[137] & 255) << 8) + (data[136] & 255);
       this.torque_sensor_calibration_table_right[5][1] =
-        ((data.buffer[139] & 255) << 8) + (data.buffer[138] & 255);
+        ((data[139] & 255) << 8) + (data[138] & 255);
       this.torque_sensor_calibration_table_right[6][0] =
-        ((data.buffer[141] & 255) << 8) + (data.buffer[140] & 255);
+        ((data[141] & 255) << 8) + (data[140] & 255);
       this.torque_sensor_calibration_table_right[6][1] =
-        ((data.buffer[143] & 255) << 8) + (data.buffer[142] & 255);
+        ((data[143] & 255) << 8) + (data[142] & 255);
       this.torque_sensor_calibration_table_right[7][0] =
-        ((data.buffer[145] & 255) << 8) + (data.buffer[144] & 255);
+        ((data[145] & 255) << 8) + (data[144] & 255);
       this.torque_sensor_calibration_table_right[7][1] =
-        ((data.buffer[147] & 255) << 8) + (data.buffer[146] & 255);
-      this.street_mode_function_enabled = data.buffer[148];
-      this.street_mode_enabled = data.buffer[149];
-      this.street_mode_enabled_on_startup = data.buffer[150];
-      this.street_mode_speed_limit = data.buffer[151];
-      this.street_mode_power_limit_div25 = data.buffer[152];
+        ((data[147] & 255) << 8) + (data[146] & 255);
+      this.street_mode_function_enabled = data[148];
+      this.street_mode_enabled = data[149];
+      this.street_mode_enabled_on_startup = data[150];
+      this.street_mode_speed_limit = data[151];
+      this.street_mode_power_limit_div25 = data[152];
       this.street_mode_power_limit = this.street_mode_power_limit_div25 * 25;
-      this.street_mode_throttle_enabled = data.buffer[153];
-      this.street_mode_hotkey_enabled = data.buffer[154];
-      this.pedal_cadence_fast_stop = data.buffer[155];
-      this.throttle_virtual_step = data.buffer[156];
-      this.street_mode_enabled = data.buffer[157];
-      this.ant_device_id = data.buffer[158];
+      this.street_mode_throttle_enabled = data[153];
+      this.street_mode_hotkey_enabled = data[154];
+      this.pedal_cadence_fast_stop = data[155];
+      this.throttle_virtual_step = data[156];
+      this.street_mode_enabled = data[157];
+      this.ant_device_id = data[158];
 
       return true;
     }
@@ -343,221 +333,174 @@ export class TSDZ_Configurations {
     return false;
   }
 
-  formatData(): ByteBuffer {
-    let data: ByteBuffer = new ByteBuffer(CONFIGURATIONS_ADV_SIZE);
-    data.writeByte(CONFIGURATIONS_VERSION, 0); // configurations version
-    data.writeByte(this.assist_level, 1);
-    data.writeByte(this.wheel_perimeter & 0xff, 2);
-    data.writeByte(this.wheel_perimeter >>> 8, 3);
-    data.writeByte(this.wheel_max_speed, 4);
-    data.writeByte(this.units_type, 5);
-    data.writeByte(this.ui32_wh_x10 & 0xff, 6);
-    data.writeByte(this.ui32_wh_x10 >>> 8, 7);
-    data.writeByte(this.ui32_wh_x10 >>> 16, 8);
-    data.writeByte(this.ui32_wh_x10 >>> 24, 9);
-    data.writeByte(this.ui32_wh_x10_100_percent & 0xff, 10);
-    data.writeByte(this.ui32_wh_x10_100_percent >>> 8, 11);
-    data.writeByte(this.ui32_wh_x10_100_percent >>> 16, 12);
-    data.writeByte(this.ui32_wh_x10_100_percent >>> 24, 13);
-    data.writeByte(this.battery_soc_enable, 14);
-    data.writeByte(this.target_max_battery_power_div25, 15);
-    data.writeByte(this.battery_max_current, 16);
-    data.writeByte(this.motor_max_current, 17);
-    data.writeByte(this.motor_current_min_adc, 18);
-    data.writeByte(this.field_weakening, 19);
-    data.writeByte(this.ramp_up_amps_per_second_x10, 20);
-    data.writeByte(this.battery_low_voltage_cut_ofx10 & 0xff, 21);
-    data.writeByte(this.battery_low_voltage_cut_ofx10 >>> 8, 22);
-    data.writeByte(this.motor_type, 23);
-    data.writeByte(this.motor_current_control_mode, 24);
-    data.writeByte(this.motor_assistance_startup_without_pedal_rotation, 25);
-    data.writeByte(this.assist_level_factor[0] & 0xff, 26);
-    data.writeByte(this.assist_level_factor[0] >> 8, 27);
-    data.writeByte(this.assist_level_factor[1] & 0xff, 28);
-    data.writeByte(this.assist_level_factor[1] >> 8, 29);
-    data.writeByte(this.assist_level_factor[2] & 0xff, 30);
-    data.writeByte(this.assist_level_factor[2] >> 8, 31);
-    data.writeByte(this.assist_level_factor[3] & 0xff, 32);
-    data.writeByte(this.assist_level_factor[3] >> 8, 33);
-    data.writeByte(this.assist_level_factor[4] & 0xff, 34);
-    data.writeByte(this.assist_level_factor[4] >> 8, 35);
-    data.writeByte(this.assist_level_factor[5] & 0xff, 36);
-    data.writeByte(this.assist_level_factor[5] >> 8, 37);
-    data.writeByte(this.assist_level_factor[6] & 0xff, 38);
-    data.writeByte(this.assist_level_factor[6] >> 8, 39);
-    data.writeByte(this.number_oassist_levels, 40);
-    data.writeByte(this.startup_motor_power_boost_feature_enabled, 41);
-    data.writeByte(this.startup_motor_power_boost_always, 42);
-    data.writeByte(this.startup_motor_power_boost_limit_power, 43);
-    data.writeByte(this.startup_motor_power_boost_factor[0] & 0xff, 44);
-    data.writeByte(this.startup_motor_power_boost_factor[0] >> 8, 45);
-    data.writeByte(this.startup_motor_power_boost_factor[1] & 0xff, 46);
-    data.writeByte(this.startup_motor_power_boost_factor[1] >> 8, 47);
-    data.writeByte(this.startup_motor_power_boost_factor[2] & 0xff, 48);
-    data.writeByte(this.startup_motor_power_boost_factor[2] >> 8, 49);
-    data.writeByte(this.startup_motor_power_boost_factor[3] & 0xff, 50);
-    data.writeByte(this.startup_motor_power_boost_factor[3] >> 8, 51);
-    data.writeByte(this.startup_motor_power_boost_factor[4] & 0xff, 52);
-    data.writeByte(this.startup_motor_power_boost_factor[4] >> 8, 53);
-    data.writeByte(this.startup_motor_power_boost_factor[5] & 0xff, 54);
-    data.writeByte(this.startup_motor_power_boost_factor[5] >> 8, 55);
+  formatData(): number[] {
+    let data: number[] = new Array<number>(CONFIGURATIONS_ADV_SIZE);
+    data[0] = CONFIGURATIONS_VERSION;
+    data[1] = this.assist_level;
+    data[2] = this.wheel_perimeter & 0xff;
+    data[3] = this.wheel_perimeter >>> 8;
+    data[4] = this.wheel_max_speed;
+    data[5] = this.units_type;
+    data[6] = this.ui32_wh_x10 & 0xff;
+    data[7] = this.ui32_wh_x10 >>> 8;
+    data[8] = this.ui32_wh_x10 >>> 16;
+    data[9] = this.ui32_wh_x10 >>> 24;
+    data[10] = this.ui32_wh_x10_100_percent & 0xff;
+    data[11] = this.ui32_wh_x10_100_percent >>> 8;
+    data[12] = this.ui32_wh_x10_100_percent >>> 16;
+    data[13] = this.ui32_wh_x10_100_percent >>> 24;
+    data[14] = this.battery_soc_enable;
+    data[15] = this.target_max_battery_power_div25;
+    data[16] = this.battery_max_current;
+    data[17] = this.motor_max_current;
+    data[18] = this.motor_current_min_adc;
+    data[19] = this.field_weakening;
+    data[20] = this.ramp_up_amps_per_second_x10;
+    data[21] = this.battery_low_voltage_cut_ofx10 & 0xff;
+    data[22] = this.battery_low_voltage_cut_ofx10 >>> 8;
+    data[23] = this.motor_type;
+    data[24] = this.motor_current_control_mode;
+    data[25] = this.motor_assistance_startup_without_pedal_rotation;
+    data[26] = this.assist_level_factor[0] & 0xff;
+    data[27] = this.assist_level_factor[0] >> 8;
+    data[28] = this.assist_level_factor[1] & 0xff;
+    data[29] = this.assist_level_factor[1] >> 8;
+    data[30] = this.assist_level_factor[2] & 0xff;
+    data[31] = this.assist_level_factor[2] >> 8;
+    data[32] = this.assist_level_factor[3] & 0xff;
+    data[33] = this.assist_level_factor[3] >> 8;
+    data[34] = this.assist_level_factor[4] & 0xff;
+    data[35] = this.assist_level_factor[4] >> 8;
+    data[36] = this.assist_level_factor[5] & 0xff;
+    data[37] = this.assist_level_factor[5] >> 8;
+    data[38] = this.assist_level_factor[6] & 0xff;
+    data[39] = this.assist_level_factor[6] >> 8;
+    data[40] = this.number_oassist_levels;
+    data[41] = this.startup_motor_power_boost_feature_enabled;
+    data[42] = this.startup_motor_power_boost_always;
+    data[43] = this.startup_motor_power_boost_limit_power;
+    data[44] = this.startup_motor_power_boost_factor[0] & 0xff;
+    data[45] = this.startup_motor_power_boost_factor[0] >> 8;
+    data[46] = this.startup_motor_power_boost_factor[1] & 0xff;
+    data[47] = this.startup_motor_power_boost_factor[1] >> 8;
+    data[48] = this.startup_motor_power_boost_factor[2] & 0xff;
+    data[49] = this.startup_motor_power_boost_factor[2] >> 8;
+    data[50] = this.startup_motor_power_boost_factor[3] & 0xff;
+    data[51] = this.startup_motor_power_boost_factor[3] >> 8;
+    data[52] = this.startup_motor_power_boost_factor[4] & 0xff;
+    data[53] = this.startup_motor_power_boost_factor[4] >> 8;
+    data[54] = this.startup_motor_power_boost_factor[5] & 0xff;
+    data[55] = this.startup_motor_power_boost_factor[5] >> 8;
     ///IS THIS RIGHT??
-    data.writeByte(this.startup_motor_power_boost_factor[6] & 0xff, 159);
-    data.writeByte(this.startup_motor_power_boost_factor[6] >> 8, 160);
+    data[159] = this.startup_motor_power_boost_factor[6] & 0xff;
+    data[160] = this.startup_motor_power_boost_factor[6] >> 8;
 
-    data.writeByte(this.startup_motor_power_boost_time, 56);
-    data.writeByte(this.startup_motor_power_boost_fade_time, 57);
-    data.writeByte(this.temperature_limit_feature_enabled, 58);
-    data.writeByte(this.motor_temperature_min_value_to_limit, 59);
-    data.writeByte(this.motor_temperature_max_value_to_limit, 60);
-    data.writeByte(this.coast_brake_enable, 61);
-    data.writeByte(this.coast_brake_adc, 62);
-    data.writeByte(this.battery_voltage_reset_wh_counter_x10 & 0xff, 63);
-    data.writeByte(this.battery_voltage_reset_wh_counter_x10 >> 8, 64);
-    data.writeByte(this.system_power_oftime_minutes, 65);
-    data.writeByte(this.battery_pack_resistance_x1000 & 0xff, 66);
-    data.writeByte(this.battery_pack_resistance_x1000 >> 8, 67);
-    data.writeByte(this.ui32_odometer_x10 & 0xff, 68);
-    data.writeByte((this.ui32_odometer_x10 >> 8) & 0xff, 69);
-    data.writeByte((this.ui32_odometer_x10 >> 16) & 0xff, 70);
-    data.writeByte((this.ui32_odometer_x10 >> 24) & 0xff, 71);
-    data.writeByte(this.walk_assist_feature_enabled, 72);
-    data.writeByte(this.walk_assist_level_factor[0], 73);
-    data.writeByte(this.walk_assist_level_factor[1], 74);
-    data.writeByte(this.walk_assist_level_factor[2], 75);
-    data.writeByte(this.walk_assist_level_factor[3], 76);
-    data.writeByte(this.walk_assist_level_factor[4], 77);
-    data.writeByte(this.walk_assist_level_factor[5], 78);
-    data.writeByte(this.walk_assist_level_factor[6], 79);
-    data.writeByte(this.torque_sensor_calibration_feature_enabled, 80);
-    data.writeByte(this.torque_sensor_calibration_pedal_ground, 81);
-    data.writeByte(this.torque_sensor_filter, 82);
-    data.writeByte(this.torque_sensor_adc_threshold, 83);
-    data.writeByte(this.torque_sensor_calibration_table_left[0][0] & 0xff, 84);
-    data.writeByte(this.torque_sensor_calibration_table_left[0][0] >> 8, 85);
-    data.writeByte(this.torque_sensor_calibration_table_left[0][1] & 0xff, 86);
-    data.writeByte(this.torque_sensor_calibration_table_left[0][1] >> 8, 87);
-    data.writeByte(this.torque_sensor_calibration_table_left[1][0] & 0xff, 88);
-    data.writeByte(this.torque_sensor_calibration_table_left[1][0] >> 8, 89);
-    data.writeByte(this.torque_sensor_calibration_table_left[1][1] & 0xff, 90);
-    data.writeByte(this.torque_sensor_calibration_table_left[1][1] >> 8, 91);
-    data.writeByte(this.torque_sensor_calibration_table_left[2][0] & 0xff, 92);
-    data.writeByte(this.torque_sensor_calibration_table_left[2][0] >> 8, 93);
-    data.writeByte(this.torque_sensor_calibration_table_left[2][1] & 0xff, 94);
-    data.writeByte(this.torque_sensor_calibration_table_left[2][1] >> 8, 95);
-    data.writeByte(this.torque_sensor_calibration_table_left[3][0] & 0xff, 96);
-    data.writeByte(this.torque_sensor_calibration_table_left[3][0] >> 8, 97);
-    data.writeByte(this.torque_sensor_calibration_table_left[3][1] & 0xff, 98);
-    data.writeByte(this.torque_sensor_calibration_table_left[3][1] >> 8, 99);
-    data.writeByte(this.torque_sensor_calibration_table_left[4][0] & 0xff, 100);
-    data.writeByte(this.torque_sensor_calibration_table_left[4][0] >> 8, 101);
-    data.writeByte(this.torque_sensor_calibration_table_left[4][1] & 0xff, 102);
-    data.writeByte(this.torque_sensor_calibration_table_left[4][1] >> 8, 103);
-    data.writeByte(this.torque_sensor_calibration_table_left[5][0] & 0xff, 104);
-    data.writeByte(this.torque_sensor_calibration_table_left[5][0] >> 8, 105);
-    data.writeByte(this.torque_sensor_calibration_table_left[5][1] & 0xff, 106);
-    data.writeByte(this.torque_sensor_calibration_table_left[5][1] >> 8, 107);
-    data.writeByte(this.torque_sensor_calibration_table_left[6][0] & 0xff, 108);
-    data.writeByte(this.torque_sensor_calibration_table_left[6][0] >> 8, 109);
-    data.writeByte(this.torque_sensor_calibration_table_left[6][1] & 0xff, 110);
-    data.writeByte(this.torque_sensor_calibration_table_left[6][1] >> 8, 111);
-    data.writeByte(this.torque_sensor_calibration_table_left[7][0] & 0xff, 112);
-    data.writeByte(this.torque_sensor_calibration_table_left[7][0] >> 8, 113);
-    data.writeByte(this.torque_sensor_calibration_table_left[7][1] & 0xff, 114);
-    data.writeByte(this.torque_sensor_calibration_table_left[7][1] >> 8, 115);
-    data.writeByte(
-      this.torque_sensor_calibration_table_right[0][0] & 0xff,
-      116,
-    );
-    data.writeByte(this.torque_sensor_calibration_table_right[0][0] >> 8, 117);
-    data.writeByte(
-      this.torque_sensor_calibration_table_right[0][1] & 0xff,
-      118,
-    );
-    data.writeByte(this.torque_sensor_calibration_table_right[0][1] >> 8, 119);
-    data.writeByte(
-      this.torque_sensor_calibration_table_right[1][0] & 0xff,
-      120,
-    );
-    data.writeByte(this.torque_sensor_calibration_table_right[1][0] >> 8, 121);
-    data.writeByte(
-      this.torque_sensor_calibration_table_right[1][1] & 0xff,
-      122,
-    );
-    data.writeByte(this.torque_sensor_calibration_table_right[1][1] >> 8, 123);
-    data.writeByte(
-      this.torque_sensor_calibration_table_right[2][0] & 0xff,
-      124,
-    );
-    data.writeByte(this.torque_sensor_calibration_table_right[2][0] >> 8, 125);
-    data.writeByte(
-      this.torque_sensor_calibration_table_right[2][1] & 0xff,
-      126,
-    );
-    data.writeByte(this.torque_sensor_calibration_table_right[2][1] >> 8, 127);
-    data.writeByte(
-      this.torque_sensor_calibration_table_right[3][0] & 0xff,
-      128,
-    );
-    data.writeByte(this.torque_sensor_calibration_table_right[3][0] >> 8, 129);
-    data.writeByte(
-      this.torque_sensor_calibration_table_right[3][1] & 0xff,
-      130,
-    );
-    data.writeByte(this.torque_sensor_calibration_table_right[3][1] >> 8, 131);
-    data.writeByte(
-      this.torque_sensor_calibration_table_right[4][0] & 0xff,
-      132,
-    );
-    data.writeByte(this.torque_sensor_calibration_table_right[4][0] >> 8, 133);
-    data.writeByte(
-      this.torque_sensor_calibration_table_right[4][1] & 0xff,
-      134,
-    );
-    data.writeByte(this.torque_sensor_calibration_table_right[4][1] >> 8, 135);
-    data.writeByte(
-      this.torque_sensor_calibration_table_right[5][0] & 0xff,
-      136,
-    );
-    data.writeByte(this.torque_sensor_calibration_table_right[5][0] >> 8, 137);
-    data.writeByte(
-      this.torque_sensor_calibration_table_right[5][1] & 0xff,
-      138,
-    );
-    data.writeByte(this.torque_sensor_calibration_table_right[5][1] >> 8, 139);
-    data.writeByte(
-      this.torque_sensor_calibration_table_right[6][0] & 0xff,
-      140,
-    );
-    data.writeByte(this.torque_sensor_calibration_table_right[6][0] >> 8, 141);
-    data.writeByte(
-      this.torque_sensor_calibration_table_right[6][1] & 0xff,
-      142,
-    );
-    data.writeByte(this.torque_sensor_calibration_table_right[6][1] >> 8, 143);
-    data.writeByte(
-      this.torque_sensor_calibration_table_right[7][0] & 0xff,
-      144,
-    );
-    data.writeByte(this.torque_sensor_calibration_table_right[7][0] >> 8, 145);
-    data.writeByte(
-      this.torque_sensor_calibration_table_right[7][1] & 0xff,
-      146,
-    );
-    data.writeByte(this.torque_sensor_calibration_table_right[7][1] >> 8, 147);
-    data.writeByte(this.street_mode_function_enabled, 148);
-    data.writeByte(this.street_mode_enabled, 149);
-    data.writeByte(this.street_mode_enabled_on_startup, 150);
-    data.writeByte(this.street_mode_speed_limit, 151);
-    data.writeByte(this.street_mode_power_limit_div25, 152);
-    data.writeByte(this.street_mode_throttle_enabled, 153);
-    data.writeByte(this.street_mode_hotkey_enabled, 154);
-    data.writeByte(this.pedal_cadence_fast_stop, 155);
-    data.writeByte(this.throttle_virtual_step, 156);
-    data.writeByte(this.street_mode_enabled, 157);
-    data.writeByte(this.ant_device_id, 158);
+    data[56] = this.startup_motor_power_boost_time;
+    data[57] = this.startup_motor_power_boost_fade_time;
+    data[58] = this.temperature_limit_feature_enabled;
+    data[59] = this.motor_temperature_min_value_to_limit;
+    data[60] = this.motor_temperature_max_value_to_limit;
+    data[61] = this.coast_brake_enable;
+    data[62] = this.coast_brake_adc;
+    data[63] = this.battery_voltage_reset_wh_counter_x10 & 0xff;
+    data[64] = this.battery_voltage_reset_wh_counter_x10 >> 8;
+    data[65] = this.system_power_oftime_minutes;
+    data[66] = this.battery_pack_resistance_x1000 & 0xff;
+    data[67] = this.battery_pack_resistance_x1000 >> 8;
+    data[68] = this.ui32_odometer_x10 & 0xff;
+    data[69] = (this.ui32_odometer_x10 >> 8) & 0xff;
+    data[70] = (this.ui32_odometer_x10 >> 16) & 0xff;
+    data[71] = (this.ui32_odometer_x10 >> 24) & 0xff;
+    data[72] = this.walk_assist_feature_enabled;
+    data[73] = this.walk_assist_level_factor[0];
+    data[74] = this.walk_assist_level_factor[1];
+    data[75] = this.walk_assist_level_factor[2];
+    data[76] = this.walk_assist_level_factor[3];
+    data[77] = this.walk_assist_level_factor[4];
+    data[78] = this.walk_assist_level_factor[5];
+    data[79] = this.walk_assist_level_factor[6];
+    data[80] = this.torque_sensor_calibration_feature_enabled;
+    data[81] = this.torque_sensor_calibration_pedal_ground;
+    data[82] = this.torque_sensor_filter;
+    data[83] = this.torque_sensor_adc_threshold;
+    data[84] = this.torque_sensor_calibration_table_left[0][0] & 0xff;
+    data[85] = this.torque_sensor_calibration_table_left[0][0] >> 8;
+    data[86] = this.torque_sensor_calibration_table_left[0][1] & 0xff;
+    data[87] = this.torque_sensor_calibration_table_left[0][1] >> 8;
+    data[88] = this.torque_sensor_calibration_table_left[1][0] & 0xff;
+    data[89] = this.torque_sensor_calibration_table_left[1][0] >> 8;
+    data[90] = this.torque_sensor_calibration_table_left[1][1] & 0xff;
+    data[91] = this.torque_sensor_calibration_table_left[1][1] >> 8;
+    data[92] = this.torque_sensor_calibration_table_left[2][0] & 0xff;
+    data[93] = this.torque_sensor_calibration_table_left[2][0] >> 8;
+    data[94] = this.torque_sensor_calibration_table_left[2][1] & 0xff;
+    data[95] = this.torque_sensor_calibration_table_left[2][1] >> 8;
+    data[96] = this.torque_sensor_calibration_table_left[3][0] & 0xff;
+    data[97] = this.torque_sensor_calibration_table_left[3][0] >> 8;
+    data[98] = this.torque_sensor_calibration_table_left[3][1] & 0xff;
+    data[99] = this.torque_sensor_calibration_table_left[3][1] >> 8;
+    data[100] = this.torque_sensor_calibration_table_left[4][0] & 0xff;
+    data[101] = this.torque_sensor_calibration_table_left[4][0] >> 8;
+    data[102] = this.torque_sensor_calibration_table_left[4][1] & 0xff;
+    data[103] = this.torque_sensor_calibration_table_left[4][1] >> 8;
+    data[104] = this.torque_sensor_calibration_table_left[5][0] & 0xff;
+    data[105] = this.torque_sensor_calibration_table_left[5][0] >> 8;
+    data[106] = this.torque_sensor_calibration_table_left[5][1] & 0xff;
+    data[107] = this.torque_sensor_calibration_table_left[5][1] >> 8;
+    data[108] = this.torque_sensor_calibration_table_left[6][0] & 0xff;
+    data[109] = this.torque_sensor_calibration_table_left[6][0] >> 8;
+    data[110] = this.torque_sensor_calibration_table_left[6][1] & 0xff;
+    data[111] = this.torque_sensor_calibration_table_left[6][1] >> 8;
+    data[112] = this.torque_sensor_calibration_table_left[7][0] & 0xff;
+    data[113] = this.torque_sensor_calibration_table_left[7][0] >> 8;
+    data[114] = this.torque_sensor_calibration_table_left[7][1] & 0xff;
+    data[115] = this.torque_sensor_calibration_table_left[7][1] >> 8;
+    data[116] = this.torque_sensor_calibration_table_right[0][0] & 0xff;
+    data[117] = this.torque_sensor_calibration_table_right[0][0] >> 8;
+    data[118] = this.torque_sensor_calibration_table_right[0][1] & 0xff;
+    data[119] = this.torque_sensor_calibration_table_right[0][1] >> 8;
+    data[120] = this.torque_sensor_calibration_table_right[1][0] & 0xff;
+    data[121] = this.torque_sensor_calibration_table_right[1][0] >> 8;
+    data[122] = this.torque_sensor_calibration_table_right[1][1] & 0xff;
+    data[123] = this.torque_sensor_calibration_table_right[1][1] >> 8;
+    data[124] = this.torque_sensor_calibration_table_right[2][0] & 0xff;
+    data[125] = this.torque_sensor_calibration_table_right[2][0] >> 8;
+    data[126] = this.torque_sensor_calibration_table_right[2][1] & 0xff;
+    data[127] = this.torque_sensor_calibration_table_right[2][1] >> 8;
+    data[128] = this.torque_sensor_calibration_table_right[3][0] & 0xff;
+    data[129] = this.torque_sensor_calibration_table_right[3][0] >> 8;
+    data[130] = this.torque_sensor_calibration_table_right[3][1] & 0xff;
+    data[131] = this.torque_sensor_calibration_table_right[3][1] >> 8;
+    data[132] = this.torque_sensor_calibration_table_right[4][0] & 0xff;
+    data[133] = this.torque_sensor_calibration_table_right[4][0] >> 8;
+    data[134] = this.torque_sensor_calibration_table_right[4][1] & 0xff;
+    data[135] = this.torque_sensor_calibration_table_right[4][1] >> 8;
+    data[136] = this.torque_sensor_calibration_table_right[5][0] & 0xff;
+    data[137] = this.torque_sensor_calibration_table_right[5][0] >> 8;
+    data[138] = this.torque_sensor_calibration_table_right[5][1] & 0xff;
+    data[139] = this.torque_sensor_calibration_table_right[5][1] >> 8;
+    data[140] = this.torque_sensor_calibration_table_right[6][0] & 0xff;
+    data[141] = this.torque_sensor_calibration_table_right[6][0] >> 8;
+    data[142] = this.torque_sensor_calibration_table_right[6][1] & 0xff;
+    data[143] = this.torque_sensor_calibration_table_right[6][1] >> 8;
+    data[144] = this.torque_sensor_calibration_table_right[7][0] & 0xff;
+    data[145] = this.torque_sensor_calibration_table_right[7][0] >> 8;
+    data[146] = this.torque_sensor_calibration_table_right[7][1] & 0xff;
+    data[147] = this.torque_sensor_calibration_table_right[7][1] >> 8;
+    data[148] = this.street_mode_function_enabled;
+    data[149] = this.street_mode_enabled;
+    data[150] = this.street_mode_enabled_on_startup;
+    data[151] = this.street_mode_speed_limit;
+    data[152] = this.street_mode_power_limit_div25;
+    data[153] = this.street_mode_throttle_enabled;
+    data[154] = this.street_mode_hotkey_enabled;
+    data[155] = this.pedal_cadence_fast_stop;
+    data[156] = this.throttle_virtual_step;
+    data[157] = this.street_mode_enabled;
+    data[158] = this.ant_device_id;
 
-    console.log(data.toHex());
+    console.log(data);
+    this.data = data;
     return data;
   }
 }

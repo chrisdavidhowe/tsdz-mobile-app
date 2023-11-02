@@ -49,69 +49,64 @@ export class TSDZ_Periodic {
   wattsHour: number = 0;
   motorState: number = 0;
   motorStateTarget: number = 0;
-  data: ByteBuffer;
+  data: number[];
 
   constructor() {
-    this.data = new ByteBuffer(PERIODIC_ADV_SIZE);
+    this.data = new Array<number>(PERIODIC_ADV_SIZE);
   }
 
-  getData(data: ByteBuffer): boolean {
-    if (data.buffer.length !== PERIODIC_ADV_SIZE) {
+  getData(data: number[]): boolean {
+    this.data = data;
+    if (data.length !== PERIODIC_ADV_SIZE) {
       console.error(this.TAG, 'Wrong Status BT message size!');
       return false;
     }
 
-    this.batteryVoltage =
-      (((data.buffer[1] & 255) << 8) + (data.buffer[0] & 255)) / 10;
-    this.batteryCurrent = (data.buffer[2] & 255) / 5;
-    this.wheelSpeed =
-      (((data.buffer[4] & 255) << 8) + (data.buffer[3] & 255)) / 10;
-    this.braking = data.buffer[5] & 255 & 1;
-    this.light = ((data.buffer[5] & 255) >> 1) & 1;
-    this.motorHallSensors = data.buffer[6] & 255;
-    this.PASPedalRight = data.buffer[7] & 255;
-    this.ADCThrottle = data.buffer[8] & 255;
-    this.motorTemperature = data.buffer[9] & 255;
-    this.throttle = data.buffer[10] & 255;
-    this.ADCPedalTorqueSensor =
-      ((data.buffer[12] & 255) << 8) + (data.buffer[11] & 255);
-    this.pedalWeightWithOffset = data.buffer[13] & 255;
-    this.pedalWeight = data.buffer[14] & 255;
-    this.pedalCadence = data.buffer[15] & 255;
-    this.dutyCycle = data.buffer[16] & 255;
-    this.motorSpeedERPS =
-      ((data.buffer[18] & 255) << 8) + (data.buffer[17] & 255);
-    this.FOCAngle = data.buffer[19] & 255;
-    this.errorStates = data.buffer[20] & 255;
-    this.motorCurrent = (data.buffer[21] & 255) / 5;
-    this.ADCBatteryCurrent =
-      ((data.buffer[23] & 255) << 8) + (data.buffer[22] & 255);
-    this.assistLevel = data.buffer[24] & 255;
-    this.humanPedalPower =
-      ((data.buffer[26] & 255) << 8) + (data.buffer[25] & 255);
-    this.batterySOC = data.buffer[27] & 255;
+    this.batteryVoltage = (((data[1] & 255) << 8) + (data[0] & 255)) / 10;
+    this.batteryCurrent = (data[2] & 255) / 5;
+    this.wheelSpeed = (((data[4] & 255) << 8) + (data[3] & 255)) / 10;
+    this.braking = data[5] & 255 & 1;
+    this.light = ((data[5] & 255) >> 1) & 1;
+    this.motorHallSensors = data[6] & 255;
+    this.PASPedalRight = data[7] & 255;
+    this.ADCThrottle = data[8] & 255;
+    this.motorTemperature = data[9] & 255;
+    this.throttle = data[10] & 255;
+    this.ADCPedalTorqueSensor = ((data[12] & 255) << 8) + (data[11] & 255);
+    this.pedalWeightWithOffset = data[13] & 255;
+    this.pedalWeight = data[14] & 255;
+    this.pedalCadence = data[15] & 255;
+    this.dutyCycle = data[16] & 255;
+    this.motorSpeedERPS = ((data[18] & 255) << 8) + (data[17] & 255);
+    this.FOCAngle = data[19] & 255;
+    this.errorStates = data[20] & 255;
+    this.motorCurrent = (data[21] & 255) / 5;
+    this.ADCBatteryCurrent = ((data[23] & 255) << 8) + (data[22] & 255);
+    this.assistLevel = data[24] & 255;
+    this.humanPedalPower = ((data[26] & 255) << 8) + (data[25] & 255);
+    this.batterySOC = data[27] & 255;
     this.odometer =
-      ((data.buffer[31] & 255) << 8) +
-      ((data.buffer[30] & 255) << 8) +
-      ((data.buffer[29] & 255) << 8) +
-      (data.buffer[28] & 255);
+      ((data[31] & 255) << 8) +
+      ((data[30] & 255) << 8) +
+      ((data[29] & 255) << 8) +
+      (data[28] & 255);
     this.wattsHour =
-      (((data.buffer[31] & 255) << 8) +
-        ((data.buffer[30] & 255) << 8) +
-        ((data.buffer[29] & 255) << 8) +
-        (data.buffer[28] & 255)) /
+      (((data[31] & 255) << 8) +
+        ((data[30] & 255) << 8) +
+        ((data[29] & 255) << 8) +
+        (data[28] & 255)) /
       10;
-    this.motorState = data.buffer[32] & 255;
-    this.motorPower = ((data.buffer[34] & 255) << 8) + (data.buffer[33] & 255);
+    this.motorState = data[32] & 255;
+    this.motorPower = ((data[34] & 255) << 8) + (data[33] & 255);
     this.batteryResistanceEstimated =
-      (((data.buffer[36] & 255) << 8) + (data.buffer[35] & 255)) / 1000;
+      (((data[36] & 255) << 8) + (data[35] & 255)) / 1000;
 
     return true;
   }
 
-  formatData(): ByteBuffer {
-    this.data.buffer[0] = this.assistLevelTarget;
-    this.data.buffer[1] = this.motorStateTarget;
+  formatData(): number[] {
+    this.data[0] = this.assistLevelTarget;
+    this.data[1] = this.motorStateTarget;
     return this.data;
   }
 }

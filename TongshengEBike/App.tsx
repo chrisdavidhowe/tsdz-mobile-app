@@ -10,8 +10,6 @@ import {
 } from 'react-native';
 import Slider, {SliderProps} from '@react-native-community/slider';
 import RadioGroup from 'react-native-radio-buttons-group';
-import {Colors} from 'react-native/Libraries/NewAppScreen';
-import {BLEService} from './BLESevice';
 import {TSDZ_BLE} from './TSDZ_BLE';
 
 export interface SliderParameterProps extends SliderProps {
@@ -44,23 +42,13 @@ const SliderComponent = (props: SliderParameterProps) => {
   );
 };
 
-async function periodicLoop(): Promise<void> {
-  ble.readPeriodic();
-  setTimeout(() => {
-    console.log('periodicLoop');
-    return periodicLoop();
-  }, 1000);
-}
-
 function App(): JSX.Element {
   const [initialized, setInitialized] = useState(false);
   useEffect(() => {
     ble.setupConnection();
     setInitialized(true);
-    periodicLoop();
   }, []); // Empty dependency array ensures it only runs once
 
-  const buttonSize = 40;
 
   const viewButtons = useMemo(
     () => [
@@ -88,8 +76,8 @@ function App(): JSX.Element {
   const [viewMode, setViewMode] = useState<string | undefined>('dashboard');
   useEffect(() => {
     console.log(`view mode has changed to: ${viewMode}`);
-    ble.writeCfg();
-    ble.writePeriodic();
+    // ble.writeCfg();
+    // ble.writePeriodic();
   }, [viewMode]); // The second argument is an array of dependencies
 
 
@@ -99,6 +87,13 @@ function App(): JSX.Element {
     backgroundColor: "black",
     height: '100%',
   };
+
+  const [blePeriodic, setBlePeriodic] = useState(ble.periodic);
+
+  // Update the state when any ble.periodic property changes
+  useEffect(() => {
+    setBlePeriodic(ble.periodic);
+  }, [ble.periodic]);
 
   return (
     <SafeAreaView style={backgroundStyle}>
