@@ -11,6 +11,8 @@ import {
 import Slider, {SliderProps} from '@react-native-community/slider';
 import RadioGroup from 'react-native-radio-buttons-group';
 import {TSDZ_BLE} from './TSDZ_BLE';
+import { TSDZ_Configurations } from './TSDZ_Config';
+import { TSDZ_Periodic } from './TSDZ_Periodic';
 
 export interface SliderParameterProps extends SliderProps {
   parameterName: string;
@@ -80,25 +82,17 @@ function App(): JSX.Element {
     // ble.writePeriodic();
   }, [viewMode]); // The second argument is an array of dependencies
 
+  const [blePeriodicData, setBlePeriodic] = useState<number[]>(ble.periodic.data);
+    useEffect(() => {
+      setBlePeriodic(ble.periodic.data);
+    }, [ble.periodic.data]);
 
-  const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: "black",
-    height: '100%',
-  };
-
-  const [blePeriodic, setBlePeriodic] = useState(ble.periodic);
-
-  // Update the state when any ble.periodic property changes
-  useEffect(() => {
-    setBlePeriodic(ble.periodic);
-  }, [ble.periodic]);
 
   return (
-    <SafeAreaView style={backgroundStyle}>
+    <SafeAreaView style={styles.background}>
       {viewMode === 'dashboard' && (
         <View>
+          <Text style={styles.largeHeader}>Motor State : {blePeriodicData[32]}</Text>
           <Text style={styles.largeHeader}>Assist Level : {ble.periodic.assistLevel}</Text>
           <Text style={styles.largeHeader}>Assist Level Target : {ble.periodic.assistLevelTarget}</Text>
           <Text style={styles.largeHeader}>Battery Voltage : {ble.periodic.batteryVoltage} V</Text>
@@ -109,7 +103,6 @@ function App(): JSX.Element {
           <Text style={styles.largeHeader}>Motor Watts : {ble.periodic.motorPower} W</Text>
           <Text style={styles.largeHeader}>Pedal Cadance : {ble.periodic.pedalCadence}</Text>
           <Text style={styles.largeHeader}>Odometer : {ble.periodic.odometer} km</Text>
-
         </View>
       )}
       {viewMode === 'settings' && (
@@ -117,7 +110,7 @@ function App(): JSX.Element {
           <Text style={styles.text}>PARAMETERS</Text>
           <ScrollView
             contentInsetAdjustmentBehavior="automatic"
-            style={backgroundStyle}>
+            style={styles.background}>
             <SliderComponent
               parameterName="Wheel Perimeter"
               step={1}
@@ -148,6 +141,10 @@ function App(): JSX.Element {
 }
 
 const styles = StyleSheet.create({
+  background: {
+    backgroundColor: "black",
+    height: '100%',
+  },
   sectionContainer: {
     marginTop: 32,
     paddingHorizontal: 24,

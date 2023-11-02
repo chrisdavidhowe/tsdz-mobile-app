@@ -56,11 +56,14 @@ export class TSDZ_BLE {
   async scanDevices(): Promise<void> {
     console.log('scanDevices');
     return BLEService.scanDevices(device => {
-      console.log(device.name);
-      if (device.name === 'TSDZ2_wireless') {
-        console.log('Found TSDZ!');
-        this.foundTSDZ = true;
-        return;
+      if (device.name != null) {
+        console.log(`name ${device.name} id ${device.id}`);
+        if (device.name.includes('TSDZ')) {
+          console.log('Found TSDZ!');
+          this.foundTSDZ = true;
+          this.TSDZ_WIRELESS_DEVICE = device.id;
+          return;
+        }
       }
     }, []);
   }
@@ -103,6 +106,7 @@ export class TSDZ_BLE {
 
   async connectDevice(): Promise<boolean> {
     try {
+      console.log(`connectToDevice(${this.TSDZ_WIRELESS_DEVICE})`);
       const device = await BLEService.connectToDevice(
         this.TSDZ_WIRELESS_DEVICE,
       );
