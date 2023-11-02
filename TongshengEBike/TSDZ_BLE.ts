@@ -30,6 +30,7 @@ export class TSDZ_BLE {
   cfg: TSDZ_Configurations;
   periodic: TSDZ_Periodic;
   foundTSDZ = false;
+  connected = false;
 
   constructor() {
     this.cfg = new TSDZ_Configurations();
@@ -81,8 +82,8 @@ export class TSDZ_BLE {
     }
 
     console.log('connect to device');
-    const is_connected = await this.connectDevice();
-    console.log(`is connected? ${is_connected}`);
+    this.connected = await this.connectDevice();
+    console.log(`is connected? ${this.connected}`);
 
     console.log(`discover services`);
     await BLEService.discoverAllServicesAndCharacteristicsForDevice();
