@@ -1,6 +1,6 @@
 /* eslint-disable jsx-quotes */
 /* eslint-disable prettier/prettier */
-import React, {useEffect, useMemo, useRef, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   SafeAreaView,
   ScrollView,
@@ -13,9 +13,7 @@ import {
 import Slider, {SliderProps} from '@react-native-community/slider';
 import RadioGroup from 'react-native-radio-buttons-group';
 import {TSDZ_BLE} from './TSDZ_BLE';
-import { TSDZ_Configurations } from './TSDZ_Config';
-import { TSDZ_Periodic } from './TSDZ_Periodic';
-import { Device } from 'react-native-ble-plx';
+import { Peripheral } from 'react-native-ble-manager';
 
 export interface SliderParameterProps extends SliderProps {
   parameterName: string;
@@ -63,20 +61,18 @@ const CustomButton = (props: CustomButtonProps) => {
 };
 
 interface BLEDeviceProps {
-  devices: Device[];
+  devices: Peripheral[];
 }
 
-const BLEDeviceComponent = (props:BLEDeviceProps ) => {
-    return props.devices.map((device:Device, index) => (
-    <TouchableOpacity
-      key={index}
-      style={styles.button}
-      onPress={() => ble.startConnection(device.id)}
-    >
+const BLEDeviceComponent = ( props:BLEDeviceProps ) => {
+    return props.devices.map((device:Peripheral, index) => (
+      <View key={index} style={StyleSheet.flatten({margin: 16})}>
       <Text style={styles.smallText}>Device: {device.name}</Text>
-      <Text style={styles.smallText}>ID: {device.id}</Text>
-      <Text></Text>
-    </TouchableOpacity>
+      <Text style={styles.smallerText}>ID: {device.id}</Text>
+      <TouchableOpacity style={StyleSheet.flatten({borderRadius: 4, position:'absolute', right: 75, backgroundColor: '#666e80'})} onPress={() => {ble.startConnection(device.id);}}>
+      <Text style={styles.text}>CONNECT</Text>
+       </TouchableOpacity>
+      </View>
   ));
 };
 
@@ -104,11 +100,11 @@ function App(): JSX.Element {
   };
 
   const setDashboardView = () => {
-    setViewMode('dashboard')
+    setViewMode('dashboard');
   };
 
   const setSettingsView = () => {
-    setViewMode('settings')
+    setViewMode('settings');
   };
 
   const [viewMode, setViewMode] = useState<string | undefined>('dashboard');
@@ -123,7 +119,7 @@ function App(): JSX.Element {
   const [motorWatts, setMotorWatts] = useState<number | undefined>(0);
   const [pedalCadence, setPedalCadence] = useState<number | undefined>(0);
   const [odometer, setOdometer] = useState<number | undefined>(0);
-  const [bleDevices, setFoundDevices] = useState<Device[]>([]);
+  const [bleDevices, setFoundDevices] = useState<Peripheral[]>([]);
 
 
   const reRenderCallback = () => {
@@ -182,7 +178,7 @@ function App(): JSX.Element {
     setMotorWatts(ble.periodic.motorPower);
     setOdometer(ble.periodic.odometer);
     setPedalCadence(ble.periodic.pedalCadence);
-    setFoundDevices(ble.foundDevices);
+    setFoundDevices(ble.peripherals);
   };
 
   const timerDelay = 100;
@@ -319,6 +315,12 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   smallText: {
+    fontSize: 17,
+    textAlign: 'left',
+    fontWeight: '500',
+    color: 'white',
+  },
+  smallerText: {
     fontSize: 12,
     textAlign: 'left',
     fontWeight: '500',

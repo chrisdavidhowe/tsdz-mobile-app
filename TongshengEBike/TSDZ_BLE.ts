@@ -1,8 +1,11 @@
-import {Device, State} from 'react-native-ble-plx';
-import {BLEService} from './BLESevice';
+import BleManager, {BleState, Peripheral} from 'react-native-ble-manager';
 import {TSDZ_Configurations} from './TSDZ_Config';
 import {TSDZ_Periodic} from './TSDZ_Periodic';
 import {decode, encode} from 'base-64';
+import {NativeEventEmitter, NativeModules} from 'react-native';
+
+const BleManagerModule = NativeModules.BleManager;
+const BleManagerEmitter = new NativeEventEmitter(BleManagerModule);
 
 export class TSDZ_BLE {
   TAG = 'TSDZBTService';
@@ -32,12 +35,28 @@ export class TSDZ_BLE {
   periodic: TSDZ_Periodic;
   foundTSDZ = false;
   connected = false;
-  foundDevices: Device[] = [];
+  connectedUid = '';
+  peripherals: Peripheral[] = [];
 
   constructor() {
     this.cfg = new TSDZ_Configurations();
     this.periodic = new TSDZ_Periodic();
+    BleManager.start({showAlert: false}).then(() => {
+      console.log('Module initialized');
+    });
   }
+
+  stopDiscoverListener = BleManagerEmitter.addListener(
+    'BleManagerDiscoverPeripheral',
+    peripheral => {
+      if (peripheral.name != null) {
+        const foundId = this.peripherals.find(p => p.id === peripheral.id);
+        if (!foundId) {
+          this.peripherals = [...this.peripherals, peripheral];
+        }
+      }
+    },
+  );
 
   base64ToByteArray(base64: string): number[] {
     const binaryString = decode(base64);
@@ -58,42 +77,21 @@ export class TSDZ_BLE {
 
   async scanDevices(): Promise<void> {
     console.log('scanDevices');
-    return BLEService.scanDevices(device => {
-      if (device.name != null) {
-
-        const newDevice = this.foundDevices.find(dev => dev.id === device.id);
-        if (!newDevice) {
-          this.foundDevices = [...this.foundDevices, device];
-        }
-        //console.log(`name ${device.name} id ${device.id}`);
-        // if (device.name.includes('TSDZ')) {
-        //   console.log('Found TSDZ!');
-        //   this.foundTSDZ = true;
-        //   this.TSDZ_WIRELESS_DEVICE = device.id;
-        //   return;
-        // }
-      }
-    }, []);
+    BleManager.scan([], 0, true).then(() => {
+      // Success code
+      console.log('Scan started');
+    });
   }
 
   async setupConnection(): Promise<boolean> {
-    const state = await BLEService.getState();
+    const state = await BleManager.checkState();
 
-    if (state !== State.PoweredOn) {
+    if (state !== BleState.On) {
       await new Promise(resolve => setTimeout(resolve, 500));
       return this.setupConnection();
     }
 
-    console.log('initialized BLE');
-    BLEService.initializeBLE();
-
     this.scanDevices();
-
-    while (!this.foundTSDZ) {
-      await new Promise(resolve => {
-        setTimeout(resolve, 100);
-      });
-    }
 
     return true;
   }
@@ -102,15 +100,12 @@ export class TSDZ_BLE {
   numConnectionLimit = 10;
 
   async startConnection(uuid: string): Promise<void> {
+    BleManager.stopScan();
+
     console.log(`connect to device ${uuid}`);
     this.connected = await this.connectDevice(uuid);
+    this.connectedUid = uuid;
     console.log(`is connected? ${this.connected}`);
-
-    console.log(`discover services`);
-    await BLEService.discoverAllServicesAndCharacteristicsForDevice();
-
-    const chars = await BLEService.getCharacteristicsForDevice(uuid);
-    console.log(`charactersitcs -> `, chars);
 
     this.pollPeriodic();
   }
@@ -129,23 +124,28 @@ export class TSDZ_BLE {
     }
     try {
       console.log(`connectToDevice(${uuid})`);
-      const device = await BLEService.connectToDevice(uuid);
+      await BleManager.connect(uuid, {});
+      const peripheralInfo = await BleManager.retrieveServices(uuid);
+      console.log(`discovered services`, peripheralInfo);
     } catch (err) {
       console.error(`connectDevice failed ${err}`);
       await new Promise(resolve => setTimeout(resolve, 1000));
       this.numConnectionAttempts++;
       return this.connectDevice(uuid);
     }
-    return BLEService.device?.isConnected() ?? false;
+    const connectedPeripherals = await BleManager.getConnectedPeripherals();
+    console.log(`connectedPeripherals`, connectedPeripherals);
+    return true;
   }
 
   writeCfg(): void {
     this.cfg.formatData();
     try {
-      BLEService.writeCharacteristicWithoutResponseForDevice(
+      BleManager.write(
+        this.connectedUid,
         this.TSDZ_SERVICE,
         this.TSDZ_CHARACTERISTICS_CONFIG,
-        this.byteArrayToBase64(this.cfg.data),
+        this.cfg.data,
       );
     } catch (err) {
       console.error(`writeCfg ${err}`);
@@ -155,10 +155,11 @@ export class TSDZ_BLE {
   writePeriodic(): void {
     this.periodic.formatData();
     try {
-      BLEService.writeCharacteristicWithoutResponseForDevice(
+      BleManager.write(
+        this.connectedUid,
         this.TSDZ_SERVICE,
         this.TSDZ_CHARACTERISTICS_PERIODIC,
-        this.byteArrayToBase64(this.periodic.data),
+        this.periodic.data,
       );
     } catch (err) {
       console.error(`writePeriodic ${err}`);
@@ -167,11 +168,11 @@ export class TSDZ_BLE {
 
   async readCfg(): Promise<void> {
     try {
-      const char = await BLEService.readCharacteristicForDevice(
+      const buffer = await BleManager.read(
+        this.connectedUid,
         this.TSDZ_SERVICE,
         this.TSDZ_CHARACTERISTICS_CONFIG,
       );
-      const buffer = this.base64ToByteArray(char.value ?? '');
       this.cfg.getData(buffer);
     } catch (err) {
       console.error(`readCfg ${err}`);
@@ -180,28 +181,14 @@ export class TSDZ_BLE {
 
   async readPeriodic(): Promise<void> {
     try {
-      const char = await BLEService.readCharacteristicForDevice(
+      const buffer = await BleManager.read(
+        this.connectedUid,
         this.TSDZ_SERVICE,
         this.TSDZ_CHARACTERISTICS_PERIODIC,
       );
-      const buffer = this.base64ToByteArray(char.value ?? '');
       this.periodic.getData(buffer);
     } catch (err) {
       console.error(`readPeriodic ${err}`);
     }
-  }
-
-  async setupPeriodic(): Promise<void> {
-    BLEService.setupMonitor(
-      this.TSDZ_SERVICE,
-      this.TSDZ_CHARACTERISTICS_PERIODIC,
-      char => {
-        const buffer = this.base64ToByteArray(char.value ?? '');
-        this.periodic.getData(buffer);
-      },
-      err => {
-        console.log(`setupPeriodic error:  ${err}`);
-      },
-    );
   }
 }
