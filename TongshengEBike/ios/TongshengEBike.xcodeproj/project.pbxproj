@@ -488,7 +488,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 3BQ5TU79K9;
+				DEVELOPMENT_TEAM = R8YJA2489M;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = TongshengEBike/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = EBike;
@@ -521,7 +521,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 3BQ5TU79K9;
+				DEVELOPMENT_TEAM = R8YJA2489M;
 				INFOPLIST_FILE = TongshengEBike/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = EBike;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.sports";
@@ -679,6 +679,7 @@
 					"\"$(inherited)\"",
 				);
 				MTL_ENABLE_DEBUG_INFO = NO;
+				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = "$(inherited)";
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",

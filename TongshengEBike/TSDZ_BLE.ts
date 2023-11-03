@@ -1,3 +1,4 @@
+import {Device, State} from 'react-native-ble-plx';
 import {BLEService} from './BLESevice';
 import {TSDZ_Configurations} from './TSDZ_Config';
 import {TSDZ_Periodic} from './TSDZ_Periodic';
@@ -31,6 +32,7 @@ export class TSDZ_BLE {
   periodic: TSDZ_Periodic;
   foundTSDZ = false;
   connected = false;
+  foundDevices: Device[] = [];
 
   constructor() {
     this.cfg = new TSDZ_Configurations();
@@ -58,18 +60,30 @@ export class TSDZ_BLE {
     console.log('scanDevices');
     return BLEService.scanDevices(device => {
       if (device.name != null) {
-        console.log(`name ${device.name} id ${device.id}`);
-        if (device.name.includes('TSDZ')) {
-          console.log('Found TSDZ!');
-          this.foundTSDZ = true;
-          this.TSDZ_WIRELESS_DEVICE = device.id;
-          return;
+
+        const newDevice = this.foundDevices.find(dev => dev.id === device.id);
+        if (!newDevice) {
+          this.foundDevices = [...this.foundDevices, device];
         }
+        //console.log(`name ${device.name} id ${device.id}`);
+        // if (device.name.includes('TSDZ')) {
+        //   console.log('Found TSDZ!');
+        //   this.foundTSDZ = true;
+        //   this.TSDZ_WIRELESS_DEVICE = device.id;
+        //   return;
+        // }
       }
     }, []);
   }
 
   async setupConnection(): Promise<boolean> {
+    const state = await BLEService.getState();
+
+    if (state !== State.PoweredOn) {
+      await new Promise(resolve => setTimeout(resolve, 500));
+      return this.setupConnection();
+    }
+
     console.log('initialized BLE');
     BLEService.initializeBLE();
 
@@ -81,21 +95,24 @@ export class TSDZ_BLE {
       });
     }
 
-    console.log('connect to device');
-    this.connected = await this.connectDevice();
+    return true;
+  }
+
+  numConnectionAttempts = 0;
+  numConnectionLimit = 10;
+
+  async startConnection(uuid: string): Promise<void> {
+    console.log(`connect to device ${uuid}`);
+    this.connected = await this.connectDevice(uuid);
     console.log(`is connected? ${this.connected}`);
 
     console.log(`discover services`);
     await BLEService.discoverAllServicesAndCharacteristicsForDevice();
 
-    const chars = await BLEService.getCharacteristicsForDevice(
-      this.TSDZ_SERVICE,
-    );
+    const chars = await BLEService.getCharacteristicsForDevice(uuid);
     console.log(`charactersitcs -> `, chars);
 
     this.pollPeriodic();
-
-    return true;
   }
 
   async pollPeriodic(): Promise<void> {
@@ -105,16 +122,19 @@ export class TSDZ_BLE {
     }, 1000);
   }
 
-  async connectDevice(): Promise<boolean> {
+  async connectDevice(uuid: string): Promise<boolean> {
+    if (this.numConnectionAttempts > 10) {
+      this.numConnectionAttempts = 0;
+      return false;
+    }
     try {
-      console.log(`connectToDevice(${this.TSDZ_WIRELESS_DEVICE})`);
-      const device = await BLEService.connectToDevice(
-        this.TSDZ_WIRELESS_DEVICE,
-      );
+      console.log(`connectToDevice(${uuid})`);
+      const device = await BLEService.connectToDevice(uuid);
     } catch (err) {
       console.error(`connectDevice failed ${err}`);
       await new Promise(resolve => setTimeout(resolve, 1000));
-      return this.connectDevice();
+      this.numConnectionAttempts++;
+      return this.connectDevice(uuid);
     }
     return BLEService.device?.isConnected() ?? false;
   }
@@ -164,10 +184,8 @@ export class TSDZ_BLE {
         this.TSDZ_SERVICE,
         this.TSDZ_CHARACTERISTICS_PERIODIC,
       );
-      console.log(char.value);
       const buffer = this.base64ToByteArray(char.value ?? '');
       this.periodic.getData(buffer);
-      console.log(buffer);
     } catch (err) {
       console.error(`readPeriodic ${err}`);
     }

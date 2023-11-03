@@ -15,6 +15,7 @@ import RadioGroup from 'react-native-radio-buttons-group';
 import {TSDZ_BLE} from './TSDZ_BLE';
 import { TSDZ_Configurations } from './TSDZ_Config';
 import { TSDZ_Periodic } from './TSDZ_Periodic';
+import { Device } from 'react-native-ble-plx';
 
 export interface SliderParameterProps extends SliderProps {
   parameterName: string;
@@ -61,6 +62,24 @@ const CustomButton = (props: CustomButtonProps) => {
   );
 };
 
+interface BLEDeviceProps {
+  devices: Device[];
+}
+
+const BLEDeviceComponent = (props:BLEDeviceProps ) => {
+    return props.devices.map((device:Device, index) => (
+    <TouchableOpacity
+      key={index}
+      style={styles.button}
+      onPress={() => ble.startConnection(device.id)}
+    >
+      <Text style={styles.smallText}>Device: {device.name}</Text>
+      <Text style={styles.smallText}>ID: {device.id}</Text>
+      <Text></Text>
+    </TouchableOpacity>
+  ));
+};
+
 
 function useTimer(callback: ()=> void , delay: number) {
   useEffect(() => {
@@ -92,35 +111,7 @@ function App(): JSX.Element {
     setViewMode('settings')
   };
 
-  const viewButtons = useMemo(
-    () => [
-      {
-        id: 'dashboard',
-        label: 'DASHBOARD',
-        color: 'black',
-        labelStyle: {fontSize: 17, color: 'black'},
-        containerStyle: {width: '45%', padding: 10, backgroundColor: '#d7dae0'},
-        value: 'dashboard',
-        size: 20,
-      },
-      {
-        id: 'settings',
-        label: 'SETTINGS',
-        value: 'settings',
-        color: 'black',
-        labelStyle: {fontSize: 17, color: 'black'},
-        containerStyle: {width: '45%', padding: 10, backgroundColor: '#d7dae0'},
-        size: 20,
-      },
-    ],
-    [],
-  );
   const [viewMode, setViewMode] = useState<string | undefined>('dashboard');
-  useEffect(() => {
-    console.log(`view mode has changed to: ${viewMode}`);
-  }, [viewMode]); // The second argument is an array of dependencies
-
-
   const [bleConnected, setBleConnected] = useState<boolean | undefined>(false);
   const [motorState, setMotorState] = useState<string | undefined>('OFF');
   const [assistLevel, setAssistLevel] = useState<string | undefined>('OFF');
@@ -132,6 +123,7 @@ function App(): JSX.Element {
   const [motorWatts, setMotorWatts] = useState<number | undefined>(0);
   const [pedalCadence, setPedalCadence] = useState<number | undefined>(0);
   const [odometer, setOdometer] = useState<number | undefined>(0);
+  const [bleDevices, setFoundDevices] = useState<Device[]>([]);
 
 
   const reRenderCallback = () => {
@@ -190,9 +182,10 @@ function App(): JSX.Element {
     setMotorWatts(ble.periodic.motorPower);
     setOdometer(ble.periodic.odometer);
     setPedalCadence(ble.periodic.pedalCadence);
+    setFoundDevices(ble.foundDevices);
   };
 
-  const timerDelay = 200;
+  const timerDelay = 100;
 
   useTimer(reRenderCallback, timerDelay);
 
@@ -205,7 +198,9 @@ function App(): JSX.Element {
 
           {bleConnected === false && (
           <View>
-            <Text style={styles.largeHeader}>Waiting for BLE connection...</Text>
+            <ScrollView style={styles.bleListScroll}>
+              <BLEDeviceComponent devices={bleDevices} />
+            </ScrollView>
           </View>
           )}
 
@@ -235,15 +230,14 @@ function App(): JSX.Element {
           </View>
           )}
         </View>
-        
       )}
       {viewMode === 'settings' && (
         <View>
-          <Text style={styles.text}>PARAMETERS</Text>
+          <Text style={styles.text}>SETTINGS</Text>
           <ScrollView
             contentInsetAdjustmentBehavior="automatic"
             style={styles.background}>
-            <SliderComponent
+            {/* <SliderComponent
               parameterName="Wheel Perimeter"
               step={1}
               value={ble.cfg.wheel_perimeter}
@@ -256,7 +250,7 @@ function App(): JSX.Element {
               value={ble.cfg.wheel_max_speed}
               minimumValue={1}
               maximumValue={99}
-            />
+            /> */}
           </ScrollView>
           <View style={styles.saveButton}>
           <CustomButton title="Save"
@@ -324,6 +318,12 @@ const styles = StyleSheet.create({
     color: 'white',
     padding: 10,
   },
+  smallText: {
+    fontSize: 12,
+    textAlign: 'left',
+    fontWeight: '500',
+    color: 'white',
+  },
   header: {
     fontSize: 23,
     textAlign: 'center',
@@ -380,7 +380,20 @@ const styles = StyleSheet.create({
     top: '100%',
     width: '55%',
     height: 400,
-  }
+  },
+  bleListScroll: {
+    height: 700,
+    width: 500,
+    overflow: 'scroll',
+    marginBottom: 100,
+  },
+  hrLine: {
+    flex: 1,
+    height: 1,
+    width: 100,
+    backgroundColor: 'white',
+    margin: 10,
+  },
 });
 
 export default App;
