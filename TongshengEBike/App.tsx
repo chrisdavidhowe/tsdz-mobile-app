@@ -107,10 +107,12 @@ function App(): JSX.Element {
     setViewMode('settings');
   };
 
-  const [viewMode, setViewMode] = useState<string | undefined>('dashboard');
+  const [viewMode, setViewMode] = useState<string>('dashboard');
   const [bleConnected, setBleConnected] = useState<boolean | undefined>(false);
   const [motorState, setMotorState] = useState<string | undefined>('OFF');
+  const [motorTemp, setMotorTemp] = useState<number | undefined>(0);
   const [assistLevel, setAssistLevel] = useState<string | undefined>('OFF');
+  const [targetAssistLevel, setTargetAssistLevel] = useState<number | undefined>(0);
   const [batteryVoltage, setBatteryVoltage] = useState<number | undefined>(0);
   const [batteryCurrent, setBatteryCurrent] = useState<number | undefined>(0);
   const [batteryResistance, setBatteryResistance] = useState<number | undefined>(0);
@@ -119,6 +121,7 @@ function App(): JSX.Element {
   const [motorWatts, setMotorWatts] = useState<number | undefined>(0);
   const [pedalCadence, setPedalCadence] = useState<number | undefined>(0);
   const [odometer, setOdometer] = useState<number | undefined>(0);
+  const [trip, setTrip] = useState<number | undefined>(0);
   const [bleDevices, setFoundDevices] = useState<Peripheral[]>([]);
 
 
@@ -179,6 +182,9 @@ function App(): JSX.Element {
     setOdometer(ble.periodic.odometer);
     setPedalCadence(ble.periodic.pedalCadence);
     setFoundDevices(ble.peripherals);
+    setTargetAssistLevel(ble.periodic.assistLevelTarget);
+    setMotorTemp(ble.periodic.motorTemperature);
+    setTrip(ble.periodic.tripDistance);
   };
 
   const timerDelay = 100;
@@ -188,52 +194,54 @@ function App(): JSX.Element {
 
   return (
     <SafeAreaView style={styles.background}>
-      {viewMode === 'dashboard' && (
+      {bleConnected === false && (
         <View>
-          <Text style={styles.text}>DASHBOARD</Text>
-
-          {bleConnected === false && (
-          <View>
-            <ScrollView style={styles.bleListScroll}>
-              <BLEDeviceComponent devices={bleDevices} />
-            </ScrollView>
-          </View>
-          )}
-
-          {bleConnected === true && (
-          <View>
-
-          <Text style={styles.largeHeader}>Motor State : {motorState}</Text>
-
-          <Text style={styles.largeHeader}>Assist Level : {assistLevel}</Text>
-
-          <Text style={styles.largeHeader}>Battery Voltage : {batteryVoltage} V</Text>
-
-          <Text style={styles.largeHeader}>Battery Current : {batteryCurrent} A</Text>
-
-          <Text style={styles.largeHeader}>Battery Resistance : {batteryResistance} mΩ</Text>
-
-          <Text style={styles.largeHeader}>Battery Charge : {batterySOC} %</Text>
-
-          <Text style={styles.largeHeader}>Human Watts : {humanWatts} W</Text>
-
-          <Text style={styles.largeHeader}>Motor Watts : {motorWatts} W</Text>
-
-          <Text style={styles.largeHeader}>Pedal Cadance : {pedalCadence}</Text>
-
-          <Text style={styles.largeHeader}>Odometer : {odometer} km</Text>
-
-          </View>
-          )}
+          <Text style={styles.header}>CONNECT EBIKE BLUETOOTH</Text>
+          <Text style={styles.largeHeaderLeft}>Devices</Text>
+          <ScrollView style={styles.bleListScroll}>
+            <BLEDeviceComponent devices={bleDevices} />
+          </ScrollView>
         </View>
       )}
-      {viewMode === 'settings' && (
+
+      {viewMode === 'dashboard' && bleConnected === true && (
         <View>
-          <Text style={styles.text}>SETTINGS</Text>
+          <Text style={styles.header}>DASHBOARD</Text>
+
+          <Text style={styles.largeHeaderLeft}>ASSIST</Text>
+          <Text style={styles.detailText}>Level : {assistLevel}</Text>
+          <Text style={styles.detailText}>Target : {targetAssistLevel}</Text>
+
+          <Text style={styles.largeHeaderLeft}>BATTERY</Text>
+          <Text style={styles.detailText}>Charge : {batterySOC}%</Text>
+          <Text style={styles.detailText}>Voltage : {batteryVoltage} V+</Text>
+          <Text style={styles.detailText}>Current : {batteryCurrent} A</Text>
+          <Text style={styles.detailText}>Resistance : {batteryResistance} mΩ</Text>
+
+          <Text style={styles.largeHeaderLeft}>MOTOR</Text>
+          <Text style={styles.detailText}>State : {motorState}</Text>
+          <Text style={styles.detailText}>Temperature : {motorTemp} C</Text>
+          <Text style={styles.detailText}>Power : {motorWatts} Watts</Text>
+
+          <Text style={styles.largeHeaderLeft}>HUMAN</Text>
+          <Text style={styles.detailText}>Power : {humanWatts} Watts</Text>
+          <Text style={styles.detailText}>Pedal Cadance : {pedalCadence}</Text>
+
+          <Text style={styles.largeHeaderLeft}>DISTANCE</Text>
+          <Text style={styles.detailText}>Trip : {trip} km</Text>
+          <Text style={styles.detailText}>Odometer : {odometer} km</Text>
+
+      </View>
+
+      )}
+
+      {viewMode === 'settings' && bleConnected === true && (
+        <View>
+          <Text style={styles.header}>SETTINGS</Text>
           <ScrollView
             contentInsetAdjustmentBehavior="automatic"
             style={styles.background}>
-            {/* <SliderComponent
+            <SliderComponent
               parameterName="Wheel Perimeter"
               step={1}
               value={ble.cfg.wheel_perimeter}
@@ -246,28 +254,34 @@ function App(): JSX.Element {
               value={ble.cfg.wheel_max_speed}
               minimumValue={1}
               maximumValue={99}
-            /> */}
+            />
           </ScrollView>
           <View style={styles.saveButton}>
           <CustomButton title="Save"
-          onPress={setSave} 
+          onPress={setSave}
           backgroundColor="#666e80"
           textColor="white"/>
           </View>
         </View>
       )}
-      <View style={styles.dashboardButton}>
-      <CustomButton title="Dashboard"
-          backgroundColor={viewMode === 'dashboard' ? '#666e80' : 'black'}
-          textColor='white'
-          onPress={setDashboardView} />
-      </View>
-      <View style={styles.settingsButton}>
-      <CustomButton title="Settings"
-          backgroundColor={viewMode === 'settings' ? '#666e80' : 'black'}
-          textColor='white'
-          onPress={setSettingsView} />
-       </View>
+
+      {viewMode === 'settings' || viewMode === 'dashboard' && (
+        <View>
+          <View style={styles.dashboardButton}>
+          <CustomButton title="Dashboard"
+              backgroundColor={viewMode === 'dashboard' ? '#666e80' : 'black'}
+              textColor='white'
+              onPress={setDashboardView} />
+          </View>
+          <View style={styles.settingsButton}>
+          <CustomButton title="Settings"
+              backgroundColor={viewMode === 'settings' ? '#666e80' : 'black'}
+              textColor='white'
+              onPress={setSettingsView} />
+          </View>
+        </View>
+      )}
+
     </SafeAreaView>
   );
 }
@@ -320,6 +334,13 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: 'white',
   },
+  detailText: {
+    fontSize: 19,
+    textAlign: 'left',
+    fontWeight: '500',
+    color: 'white',
+    padding: 5
+  },
   smallerText: {
     fontSize: 12,
     textAlign: 'left',
@@ -331,21 +352,36 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontWeight: '700',
     margin: 0,
-    color: '#666e80',
+    color: '#afb2b9',
     padding: 10,
   },
   largeHeader: {
-    fontSize: 30,
+    fontSize: 24,
     textAlign: 'center',
     fontWeight: '700',
     margin: 0,
     color: 'white',
+    padding: 5,
+    marginTop: 5
+  },
+  largeHeaderLeft: {
+    fontSize: 24,
+    textAlign: 'left',
+    fontWeight: '700',
+    margin: 0,
+    color: 'black',
     padding: 10,
+    backgroundColor: '#666e80',
+    width: '100%',
+    marginTop: 5,
+    marginBottom: 5
   },
   footer: {
     position: 'absolute',
-    bottom: 40,
-    backgroundColor: 'black',
+    bottom: 100,
+    left: 0,
+    height: '100%',
+    widht: '100%'
   },
   button: {
     width: '80%',
@@ -375,6 +411,7 @@ const styles = StyleSheet.create({
     top: '100%',
     width: '55%',
     height: 400,
+    marginTop: 30
   },
   settingsButton: {
     position: 'absolute',
@@ -382,6 +419,7 @@ const styles = StyleSheet.create({
     top: '100%',
     width: '55%',
     height: 400,
+    marginTop: 30
   },
   bleListScroll: {
     height: 700,
